@@ -1,0 +1,6 @@
+{
+  "name": "RK TIFFINES POS",
+  "description": "Native Android POS billing, KOT printing, POS-8380 Bluetooth thermal printer integration, and Firestore sales sync for RK TIFFINES.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
