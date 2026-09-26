@@ -106,7 +106,7 @@ fun SalesScreen(
         TabRow(
             selectedTabIndex = currentFilter.ordinal,
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(10.dp)
+            modifier = Modifier.clip(RoundedCornerShape(10.dp))
         ) {
             SalesTimeFilter.values().forEach { filter ->
                 Tab(

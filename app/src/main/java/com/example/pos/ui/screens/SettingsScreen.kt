@@ -43,6 +43,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -119,7 +120,7 @@ fun SettingsScreen(
         TabRow(
             selectedTabIndex = selectedSection.ordinal,
             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            shape = RoundedCornerShape(10.dp)
+            modifier = Modifier.clip(RoundedCornerShape(10.dp))
         ) {
             SettingsSection.values().forEach { section ->
                 Tab(
