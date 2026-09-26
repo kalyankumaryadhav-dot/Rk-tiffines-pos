@@ -20,6 +20,7 @@ import com.example.pos.model.MenuItem
 import com.example.pos.model.OrderType
 import com.example.pos.model.PaymentMode
 import com.example.pos.model.PrinterPaperWidth
+import com.example.pos.model.ReceiptFormatConfig
 import com.example.pos.model.ShopSettings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -130,6 +131,8 @@ class PosRepository(
             val showCust = settingDao.getSettingValue("show_cust_name")?.toBooleanStrictOrNull() ?: true
             val showTable = settingDao.getSettingValue("show_table_num")?.toBooleanStrictOrNull() ?: true
             val showLogo = settingDao.getSettingValue("show_logo")?.toBooleanStrictOrNull() ?: true
+            val receiptFormatJson = settingDao.getSettingValue("receipt_format_json")
+            val receiptFormat = ReceiptFormatConfig.fromJsonString(receiptFormatJson)
 
             _settingsState.value = ShopSettings(
                 shopName = shopName,
@@ -150,7 +153,8 @@ class PosRepository(
                 receiptFooter = footer,
                 showCustomerName = showCust,
                 showTableNumber = showTable,
-                showLogo = showLogo
+                showLogo = showLogo,
+                receiptFormat = receiptFormat
             )
         } catch (e: Exception) {
             Log.e(TAG, "Error loading settings", e)
@@ -178,9 +182,15 @@ class PosRepository(
             AppSettingEntity("receipt_footer", newSettings.receiptFooter),
             AppSettingEntity("show_cust_name", newSettings.showCustomerName.toString()),
             AppSettingEntity("show_table_num", newSettings.showTableNumber.toString()),
-            AppSettingEntity("show_logo", newSettings.showLogo.toString())
+            AppSettingEntity("show_logo", newSettings.showLogo.toString()),
+            AppSettingEntity("receipt_format_json", newSettings.receiptFormat.toJsonString())
         )
         settingDao.saveSettings(entities)
+    }
+
+    suspend fun updateReceiptFormat(config: ReceiptFormatConfig) {
+        val updated = _settingsState.value.copy(receiptFormat = config)
+        updateSettings(updated)
     }
 
     suspend fun savePrinterDevice(mac: String, name: String) {

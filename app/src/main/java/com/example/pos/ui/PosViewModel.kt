@@ -440,6 +440,60 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updateReceiptFormat(config: com.example.pos.model.ReceiptFormatConfig) {
+        viewModelScope.launch {
+            repository.updateReceiptFormat(config)
+            _eventFlow.emit("Receipt format saved successfully!")
+        }
+    }
+
+    fun updatePaperWidth(paperWidth: PrinterPaperWidth) {
+        viewModelScope.launch {
+            val updated = settings.value.copy(paperWidth = paperWidth)
+            repository.updateSettings(updated)
+            _eventFlow.emit("Printer width set to ${paperWidth.widthMm}mm")
+        }
+    }
+
+    fun testPrintCurrentFormat() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentSettings = settings.value
+            val logoBitmap = repository.getLogoBitmap()
+            val now = Date()
+            val dateStr = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(now)
+            val timeStr = SimpleDateFormat("hh:mm a", Locale.getDefault()).format(now)
+
+            val testBill = BillRecord(
+                billId = "TEST-PRINT-" + System.currentTimeMillis(),
+                billNumber = currentSettings.nextBillNumber,
+                tokenNumber = currentSettings.nextTokenNumber,
+                timestamp = now.time,
+                dateString = dateStr,
+                timeString = timeStr,
+                orderType = OrderType.DINE_IN,
+                tableNumber = "T-03",
+                customerName = "Kalyan Kumar",
+                paymentMode = PaymentMode.CASH,
+                items = listOf(
+                    CartItem(MenuItem(1, "Ghee Karam Dosa", "GHEE DOSA", 70.0), 1),
+                    CartItem(MenuItem(2, "MLA Pesarattu", "PESARATTU", 50.0), 1),
+                    CartItem(MenuItem(3, "Ghee Sambar Idli", "GHEE IDLI", 40.0), 2)
+                ),
+                subtotal = 200.0,
+                grandTotal = 200.0,
+                itemCount = 4,
+                isSynced = true
+            )
+            val receiptBytes = ReceiptFormatter.buildCustomerReceipt(testBill, currentSettings, logoBitmap)
+            val result = printerManager.sendBytes(receiptBytes)
+            if (result.isSuccess) {
+                _eventFlow.emit("Test receipt printed on POS-8380 successfully!")
+            } else {
+                _eventFlow.emit("Printer error: ${result.exceptionOrNull()?.message ?: "POS-8380 not connected"}")
+            }
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Menu Management Actions
     // -------------------------------------------------------------------------

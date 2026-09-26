@@ -69,7 +69,8 @@ data class ShopSettings(
     val receiptFooter: String = "Thank you! Visit again",
     val showCustomerName: Boolean = true,
     val showTableNumber: Boolean = true,
-    val showLogo: Boolean = true
+    val showLogo: Boolean = true,
+    val receiptFormat: ReceiptFormatConfig = ReceiptFormatConfig()
 )
 
 data class BillRecord(

@@ -82,12 +82,12 @@ import com.example.ui.theme.PrinterConnectingYellow
 import com.example.ui.theme.PrinterErrorRed
 import java.io.InputStream
 
-enum class SettingsSection {
-    BUSINESS,
-    RECEIPT,
-    PRINTER,
-    BILLING,
-    SALES
+enum class SettingsSection(val title: String) {
+    BUSINESS("BUSINESS"),
+    RECEIPT_FORMAT("RECEIPT FORMAT"),
+    PRINTER("PRINTER"),
+    BILLING("BILLING"),
+    SALES("SALES")
 }
 
 @Composable
@@ -128,7 +128,7 @@ fun SettingsScreen(
                     onClick = { selectedSection = section },
                     text = {
                         Text(
-                            text = section.name,
+                            text = section.title,
                             fontWeight = if (selectedSection == section) FontWeight.Bold else FontWeight.Normal,
                             fontSize = 12.sp
                         )
@@ -144,14 +144,13 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
-                .verticalScroll(rememberScrollState())
         ) {
             when (selectedSection) {
-                SettingsSection.BUSINESS -> BusinessSettingsSection(viewModel, settings)
-                SettingsSection.RECEIPT -> ReceiptSettingsSection(viewModel, settings)
-                SettingsSection.PRINTER -> PrinterSettingsSection(viewModel, settings, printerState)
-                SettingsSection.BILLING -> BillingSettingsSection(viewModel, settings)
-                SettingsSection.SALES -> SalesSyncSettingsSection(viewModel)
+                SettingsSection.BUSINESS -> Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { BusinessSettingsSection(viewModel, settings) }
+                SettingsSection.RECEIPT_FORMAT -> ReceiptFormatScreen(viewModel, settings, printerState)
+                SettingsSection.PRINTER -> Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { PrinterSettingsSection(viewModel, settings, printerState) }
+                SettingsSection.BILLING -> Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { BillingSettingsSection(viewModel, settings) }
+                SettingsSection.SALES -> Column(modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())) { SalesSyncSettingsSection(viewModel) }
             }
         }
     }
@@ -304,181 +303,7 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
 }
 
 // -----------------------------------------------------------------------------
-// 2. RECEIPT SETTINGS
-// -----------------------------------------------------------------------------
-@Composable
-fun ReceiptSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
-    var paperWidth by remember(settings.paperWidth) { mutableStateOf(settings.paperWidth) }
-    var billFontSize by remember(settings.billItemFontSize) { mutableStateOf(settings.billItemFontSize) }
-    var kotFontSize by remember(settings.kotItemFontSize) { mutableStateOf(settings.kotItemFontSize) }
-    var footer by remember(settings.receiptFooter) { mutableStateOf(settings.receiptFooter) }
-    var showCustomer by remember(settings.showCustomerName) { mutableStateOf(settings.showCustomerName) }
-    var showTable by remember(settings.showTableNumber) { mutableStateOf(settings.showTableNumber) }
-    var showLogo by remember(settings.showLogo) { mutableStateOf(settings.showLogo) }
-
-    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-        ) {
-            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text("Thermal Paper Width", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(
-                        onClick = { paperWidth = PrinterPaperWidth.WIDTH_80MM },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (paperWidth == PrinterPaperWidth.WIDTH_80MM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = if (paperWidth == PrinterPaperWidth.WIDTH_80MM) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("80mm (POS-8380)", fontWeight = FontWeight.Bold)
-                    }
-
-                    Button(
-                        onClick = { paperWidth = PrinterPaperWidth.WIDTH_58MM },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (paperWidth == PrinterPaperWidth.WIDTH_58MM) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                            contentColor = if (paperWidth == PrinterPaperWidth.WIDTH_58MM) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                        ),
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text("58mm Standard", fontWeight = FontWeight.Bold)
-                    }
-                }
-
-                HorizontalDivider()
-
-                Text("Item Name Font Size (Configurable)", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-
-                // Bill Item Font Size
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Customer Receipt Item Font", fontWeight = FontWeight.SemiBold)
-                        Text("Size of item names on customer bill", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Button(
-                            onClick = { billFontSize = ItemFontSize.NORMAL },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (billFontSize == ItemFontSize.NORMAL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = if (billFontSize == ItemFontSize.NORMAL) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            Text("Normal")
-                        }
-                        Button(
-                            onClick = { billFontSize = ItemFontSize.LARGE },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (billFontSize == ItemFontSize.LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = if (billFontSize == ItemFontSize.LARGE) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            Text("Large")
-                        }
-                    }
-                }
-
-                // KOT Item Font Size
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text("Kitchen KOT Item Font", fontWeight = FontWeight.SemiBold)
-                        Text("Size of item names on kitchen token", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
-                    }
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Button(
-                            onClick = { kotFontSize = ItemFontSize.NORMAL },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (kotFontSize == ItemFontSize.NORMAL) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = if (kotFontSize == ItemFontSize.NORMAL) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            Text("Normal")
-                        }
-                        Button(
-                            onClick = { kotFontSize = ItemFontSize.LARGE },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (kotFontSize == ItemFontSize.LARGE) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-                                contentColor = if (kotFontSize == ItemFontSize.LARGE) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
-                            ),
-                            shape = RoundedCornerShape(6.dp),
-                            modifier = Modifier.height(36.dp)
-                        ) {
-                            Text("Large")
-                        }
-                    }
-                }
-
-                HorizontalDivider()
-
-                // Receipt Field Toggles
-                Text("Receipt Display Elements", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Print Logo at top of receipt")
-                    Switch(checked = showLogo, onCheckedChange = { showLogo = it })
-                }
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Show Table Number on Dine-In bills")
-                    Switch(checked = showTable, onCheckedChange = { showTable = it })
-                }
-
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Show Customer Name (if entered)")
-                    Switch(checked = showCustomer, onCheckedChange = { showCustomer = it })
-                }
-
-                OutlinedTextField(
-                    value = footer,
-                    onValueChange = { footer = it },
-                    label = { Text("Receipt Footer / Thank You Message") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                Button(
-                    onClick = {
-                        viewModel.updateReceiptSettings(
-                            paperWidth = paperWidth,
-                            billFontSize = billFontSize,
-                            kotFontSize = kotFontSize,
-                            footer = footer,
-                            showCustomer = showCustomer,
-                            showTable = showTable,
-                            showLogo = showLogo
-                        )
-                    },
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Save Receipt Preferences")
-                }
-            }
-        }
-    }
-}
-
-// -----------------------------------------------------------------------------
-// 3. PRINTER SETTINGS
+// 2. PRINTER SETTINGS
 // -----------------------------------------------------------------------------
 @Composable
 fun PrinterSettingsSection(

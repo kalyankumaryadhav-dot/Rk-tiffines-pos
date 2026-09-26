@@ -82,6 +82,44 @@ object EscPosCommands {
     }
 
     /**
+     * Formats item row with dynamically enabled/disabled columns and word wrapping.
+     */
+    fun formatConfigurableItemRow(
+        name: String,
+        qty: String,
+        rate: String,
+        total: String,
+        showQty: Boolean,
+        showRate: Boolean,
+        showTotal: Boolean,
+        totalColumns: Int
+    ): String {
+        val qtyWidth = if (showQty) (if (totalColumns <= 32) 4 else 6) else 0
+        val rateWidth = if (showRate) (if (totalColumns <= 32) 6 else 8) else 0
+        val totalWidth = if (showTotal) (if (totalColumns <= 32) 8 else 10) else 0
+        val numericWidth = qtyWidth + rateWidth + totalWidth
+        val nameWidth = (totalColumns - numericWidth).coerceAtLeast(8)
+
+        val paddedQty = if (showQty) qty.padStart(qtyWidth, ' ') else ""
+        val paddedRate = if (showRate) rate.padStart(rateWidth, ' ') else ""
+        val paddedTotal = if (showTotal) total.padStart(totalWidth, ' ') else ""
+        val rightCols = paddedQty + paddedRate + paddedTotal
+
+        val emptyRightPadding = " ".repeat(numericWidth)
+
+        return if (name.length <= nameWidth) {
+            name.padEnd(nameWidth, ' ') + rightCols + "\n"
+        } else {
+            val lines = name.chunked(nameWidth)
+            val firstLine = lines[0].padEnd(nameWidth, ' ') + rightCols + "\n"
+            val restLines = lines.drop(1).joinToString("") {
+                it.padEnd(nameWidth, ' ') + emptyRightPadding + "\n"
+            }
+            firstLine + restLines
+        }
+    }
+
+    /**
      * Formats KOT row: Item Name and Quantity (bold and prominent)
      */
     fun formatKotRow(name: String, qty: String, totalColumns: Int): String {
