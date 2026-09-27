@@ -472,7 +472,7 @@ fun ReceiptFormatScreen(
         )
 
         // =====================================================================
-        // SECTION 4: TOTAL & PAYMENT (Elements 17 and 18)
+        // SECTION 4: TOTAL & PAYMENT (Elements 17, 18, 19)
         // =====================================================================
         SectionHeader(title = "4. TOTAL & PAYMENT MODE")
 
@@ -484,28 +484,7 @@ fun ReceiptFormatScreen(
             onConfigChange = { formatState = formatState.copy(grandTotal = it) }
         )
 
-        // 18. Payment Mode
-        ElementConfigCard(
-            title = "18. Payment Mode",
-            subtitle = "CASH, UPI, or CARD label with items count",
-            config = formatState.paymentMode,
-            onConfigChange = { formatState = formatState.copy(paymentMode = it) }
-        )
-
-        // =====================================================================
-        // SECTION 5: FOOTER & SEPARATORS (Elements 19 and 20)
-        // =====================================================================
-        SectionHeader(title = "5. FOOTER & DECORATORS")
-
-        // 19. Footer Message
-        ElementConfigCard(
-            title = "19. Footer / Thank-you Message",
-            subtitle = settings.receiptFooter.ifBlank { "Thank you! Visit again" },
-            config = formatState.footerMessage,
-            onConfigChange = { formatState = formatState.copy(footerMessage = it) }
-        )
-
-        // 20. Separator Lines
+        // 18. Separator Lines (moved directly after Total option)
         Card(
             shape = RoundedCornerShape(12.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
@@ -518,7 +497,7 @@ fun ReceiptFormatScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("20. Separator Lines", fontWeight = FontWeight.Bold)
+                        Text("18. Separator Lines", fontWeight = FontWeight.Bold)
                         Text("Printed horizontal divider lines between receipt sections", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                     }
                     Switch(
@@ -555,6 +534,27 @@ fun ReceiptFormatScreen(
                 }
             }
         }
+
+        // 19. Payment Mode
+        ElementConfigCard(
+            title = "19. Payment Mode",
+            subtitle = "CASH, UPI, or CARD label with items count",
+            config = formatState.paymentMode,
+            onConfigChange = { formatState = formatState.copy(paymentMode = it) }
+        )
+
+        // =====================================================================
+        // SECTION 5: FOOTER (Element 20)
+        // =====================================================================
+        SectionHeader(title = "5. FOOTER & DECORATORS")
+
+        // 20. Footer Message
+        ElementConfigCard(
+            title = "20. Footer / Thank-you Message",
+            subtitle = settings.receiptFooter.ifBlank { "Thank you! Visit again" },
+            config = formatState.footerMessage,
+            onConfigChange = { formatState = formatState.copy(footerMessage = it) }
+        )
 
         // Auto Cut Setting
         Card(

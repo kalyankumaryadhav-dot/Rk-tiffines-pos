@@ -54,35 +54,75 @@ object EscPosCommands {
     }
 
     /**
-     * Formats 4 columns for Bill Item: Name, Qty, Rate, Total
-     * Standard layout:
-     * 58mm (32 cols): Name (14), Qty (4), Rate (6), Total (8)
-     * 80mm (48 cols): Name (24), Qty (6), Rate (8), Total (10)
+     * Splits text into wrapped lines respecting word boundaries where possible.
+     * Guaranteed that each line is at most [maxWidth] characters and stays within the column boundary.
      */
-    fun formatItemRow(name: String, qty: String, rate: String, total: String, totalColumns: Int): String {
-        val (nameWidth, qtyWidth, rateWidth, totalWidth) = if (totalColumns <= 32) {
-            listOf(14, 4, 6, 8)
-        } else {
-            listOf(24, 6, 8, 10)
+    fun wrapItemName(name: String, maxWidth: Int): List<String> {
+        val cleanName = name.trim().replace("\\s+".toRegex(), " ")
+        if (cleanName.length <= maxWidth) {
+            return listOf(cleanName)
         }
 
-        val paddedQty = qty.padStart(qtyWidth, ' ')
-        val paddedRate = rate.padStart(rateWidth, ' ')
-        val paddedTotal = total.padStart(totalWidth, ' ')
+        val words = cleanName.split(" ")
+        val lines = mutableListOf<String>()
+        var currentLine = StringBuilder()
 
-        return if (name.length <= nameWidth) {
-            name.padEnd(nameWidth, ' ') + paddedQty + paddedRate + paddedTotal + "\n"
-        } else {
-            // Multiline wrapping for long item names
-            val lines = name.chunked(nameWidth)
-            val firstLine = lines[0].padEnd(nameWidth, ' ') + paddedQty + paddedRate + paddedTotal + "\n"
-            val restLines = lines.drop(1).joinToString("") { it.padEnd(nameWidth, ' ') + "\n" }
-            firstLine + restLines
+        for (word in words) {
+            if (word.length > maxWidth) {
+                // Single word exceeds maxWidth: flush current buffer, then slice long word
+                if (currentLine.isNotEmpty()) {
+                    lines.add(currentLine.toString())
+                    currentLine = StringBuilder()
+                }
+                var remainingWord = word
+                while (remainingWord.length > maxWidth) {
+                    lines.add(remainingWord.substring(0, maxWidth))
+                    remainingWord = remainingWord.substring(maxWidth)
+                }
+                if (remainingWord.isNotEmpty()) {
+                    currentLine.append(remainingWord)
+                }
+            } else if (currentLine.isEmpty()) {
+                currentLine.append(word)
+            } else if (currentLine.length + 1 + word.length <= maxWidth) {
+                currentLine.append(" ").append(word)
+            } else {
+                lines.add(currentLine.toString())
+                currentLine = StringBuilder(word)
+            }
         }
+        if (currentLine.isNotEmpty()) {
+            lines.add(currentLine.toString())
+        }
+        return if (lines.isEmpty()) listOf("") else lines
     }
 
     /**
-     * Formats item row with dynamically enabled/disabled columns and word wrapping.
+     * Formats 4 columns for Bill Item: Name, Qty, Rate, Total
+     */
+    fun formatItemRow(name: String, qty: String, rate: String, total: String, totalColumns: Int): String {
+        return formatConfigurableItemRow(
+            name = name,
+            qty = qty,
+            rate = rate,
+            total = total,
+            showQty = true,
+            showRate = true,
+            showTotal = true,
+            totalColumns = totalColumns
+        )
+    }
+
+    /**
+     * Formats 4 receipt columns with fixed physical ESC/POS character positions:
+     * ITEM NAME | QTY | RATE | TOTAL
+     *
+     * 58mm (32 cols): ITEM NAME (16), QTY (3), RATE (6), TOTAL (7) = 32
+     * 80mm (48 cols): ITEM NAME (25), QTY (5), RATE (8), TOTAL (10) = 48
+     *
+     * QTY, RATE, and TOTAL form straight vertical columns aligned on the first line.
+     * Long ITEM NAME text wraps strictly inside the ITEM NAME column and never intrudes
+     * into the QTY, RATE, or TOTAL column area. Continuation lines stay within the ITEM NAME area.
      */
     fun formatConfigurableItemRow(
         name: String,
@@ -94,9 +134,10 @@ object EscPosCommands {
         showTotal: Boolean,
         totalColumns: Int
     ): String {
-        val qtyWidth = if (showQty) (if (totalColumns <= 32) 4 else 6) else 0
+        // Calculate fixed column widths for physical thermal printer
+        val qtyWidth = if (showQty) (if (totalColumns <= 32) 3 else 5) else 0
         val rateWidth = if (showRate) (if (totalColumns <= 32) 6 else 8) else 0
-        val totalWidth = if (showTotal) (if (totalColumns <= 32) 8 else 10) else 0
+        val totalWidth = if (showTotal) (if (totalColumns <= 32) 7 else 10) else 0
         val numericWidth = qtyWidth + rateWidth + totalWidth
         val nameWidth = (totalColumns - numericWidth).coerceAtLeast(8)
 
@@ -105,18 +146,23 @@ object EscPosCommands {
         val paddedTotal = if (showTotal) total.padStart(totalWidth, ' ') else ""
         val rightCols = paddedQty + paddedRate + paddedTotal
 
-        val emptyRightPadding = " ".repeat(numericWidth)
+        val nameLines = wrapItemName(name, nameWidth)
 
-        return if (name.length <= nameWidth) {
-            name.padEnd(nameWidth, ' ') + rightCols + "\n"
-        } else {
-            val lines = name.chunked(nameWidth)
-            val firstLine = lines[0].padEnd(nameWidth, ' ') + rightCols + "\n"
-            val restLines = lines.drop(1).joinToString("") {
-                it.padEnd(nameWidth, ' ') + emptyRightPadding + "\n"
-            }
-            firstLine + restLines
+        // Line 1: First line of item name + QTY + RATE + TOTAL at fixed column positions
+        val firstLineName = nameLines.firstOrNull() ?: ""
+        val sb = StringBuilder()
+        sb.append(firstLineName.padEnd(nameWidth, ' '))
+        sb.append(rightCols)
+        sb.append("\n")
+
+        // Subsequent lines: Continuation lines stay strictly inside the ITEM NAME column area
+        for (i in 1 until nameLines.size) {
+            val continuationLine = nameLines[i]
+            sb.append(continuationLine)
+            sb.append("\n")
         }
+
+        return sb.toString()
     }
 
     /**

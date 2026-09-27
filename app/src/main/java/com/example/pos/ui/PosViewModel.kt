@@ -490,13 +490,14 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
                 customerName = "Kalyan Kumar",
                 paymentMode = PaymentMode.CASH,
                 items = listOf(
-                    CartItem(MenuItem(1, "Ghee Karam Dosa", "GHEE DOSA", 70.0), 1),
-                    CartItem(MenuItem(2, "MLA Pesarattu", "PESARATTU", 50.0), 1),
-                    CartItem(MenuItem(3, "Ghee Sambar Idli", "GHEE IDLI", 40.0), 2)
+                    CartItem(MenuItem(1, "GHEE KARAM DOSA", "DOSA", 65.0), 2),
+                    CartItem(MenuItem(2, "IDLI (4 PCS)", "IDLI", 45.0), 1),
+                    CartItem(MenuItem(3, "FILTER COFFEE", "BEVERAGES", 20.0), 2),
+                    CartItem(MenuItem(4, "SPECIAL BUTTER MASALA DOSA", "DOSA", 90.0), 1)
                 ),
-                subtotal = 200.0,
-                grandTotal = 200.0,
-                itemCount = 4,
+                subtotal = 305.0,
+                grandTotal = 305.0,
+                itemCount = 6,
                 isSynced = true
             )
             val receiptBytes = ReceiptFormatter.buildCustomerReceipt(testBill, currentSettings, logoBitmap)

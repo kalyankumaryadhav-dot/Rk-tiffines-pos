@@ -183,7 +183,7 @@ object ReceiptFormatter {
 
         // 12. ITEM Heading (Element 12: ITEM heading)
         if (format.itemHeading.visible) {
-            stream.write(format.itemHeading.alignment.toEscPos())
+            stream.write(EscPosCommands.ALIGN_LEFT)
             if (format.itemHeading.bold) stream.write(EscPosCommands.BOLD_ON)
             stream.write(format.itemHeading.fontSize.toEscPos())
 
@@ -233,7 +233,7 @@ object ReceiptFormatter {
                     stream.write(line.toByteArray(charset))
                 }
             } else {
-                stream.write(format.itemName.alignment.toEscPos())
+                stream.write(EscPosCommands.ALIGN_LEFT)
                 if (format.itemName.bold) stream.write(EscPosCommands.BOLD_ON)
                 stream.write(EscPosCommands.TEXT_NORMAL)
 
