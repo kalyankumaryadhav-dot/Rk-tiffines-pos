@@ -241,62 +241,63 @@ fun OrderTypeBar(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            // Dine In Button
-            Button(
-                onClick = { onOrderTypeChange(OrderType.DINE_IN) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (orderType == OrderType.DINE_IN) {
-                        MaterialTheme.colorScheme.primary
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    },
-                    contentColor = if (orderType == OrderType.DINE_IN) {
-                        MaterialTheme.colorScheme.onPrimary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp)
-                    .testTag("dine_in_button")
+        Column(modifier = Modifier.padding(10.dp)) {
+            // DINE IN / PARCEL Toggle Buttons
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Default.DinnerDining, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("DINE IN", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-            }
+                // Dine In Button
+                Button(
+                    onClick = { onOrderTypeChange(OrderType.DINE_IN) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (orderType == OrderType.DINE_IN) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        contentColor = if (orderType == OrderType.DINE_IN) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
+                        .testTag("dine_in_button")
+                ) {
+                    Icon(Icons.Default.DinnerDining, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("DINE IN", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
 
-            // Parcel Button
-            Button(
-                onClick = { onOrderTypeChange(OrderType.PARCEL) },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (orderType == OrderType.PARCEL) {
-                        MaterialTheme.colorScheme.secondary
-                    } else {
-                        MaterialTheme.colorScheme.surface
-                    },
-                    contentColor = if (orderType == OrderType.PARCEL) {
-                        MaterialTheme.colorScheme.onSecondary
-                    } else {
-                        MaterialTheme.colorScheme.onSurface
-                    }
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .height(48.dp)
-                    .testTag("parcel_button")
-            ) {
-                Icon(Icons.Default.LocalMall, contentDescription = null, modifier = Modifier.size(20.dp))
-                Spacer(modifier = Modifier.width(6.dp))
-                Text("PARCEL", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                // Parcel Button
+                Button(
+                    onClick = { onOrderTypeChange(OrderType.PARCEL) },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (orderType == OrderType.PARCEL) {
+                            MaterialTheme.colorScheme.secondary
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        },
+                        contentColor = if (orderType == OrderType.PARCEL) {
+                            MaterialTheme.colorScheme.onSecondary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        }
+                    ),
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(48.dp)
+                        .testTag("parcel_button")
+                ) {
+                    Icon(Icons.Default.LocalMall, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("PARCEL", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                }
             }
         }
     }

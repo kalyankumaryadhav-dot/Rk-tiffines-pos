@@ -54,8 +54,6 @@ fun MainPosScreen(viewModel: PosViewModel) {
     val allMenuItems by viewModel.allMenuItems.collectAsState()
     val selectedCategory by viewModel.selectedCategory.collectAsState()
     val orderType by viewModel.orderType.collectAsState()
-    val tableNumber by viewModel.tableNumber.collectAsState()
-    val customerName by viewModel.customerName.collectAsState()
     val paymentMode by viewModel.paymentMode.collectAsState()
 
     val filteredOrders by viewModel.filteredOrders.collectAsState()
@@ -131,8 +129,6 @@ fun MainPosScreen(viewModel: PosViewModel) {
                         menuItems = allMenuItems,
                         selectedCategory = selectedCategory,
                         orderType = orderType,
-                        tableNumber = tableNumber,
-                        customerName = customerName,
                         paymentMode = paymentMode
                     )
                     PosTab.SALES -> SalesScreen(
