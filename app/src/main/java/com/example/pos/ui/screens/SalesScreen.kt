@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
 import androidx.compose.material.icons.filled.CreditCard
@@ -355,24 +356,95 @@ fun CloudSyncBar(
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .then(
+                        if (syncState is SyncState.Failed || syncState is SyncState.Offline) {
+                            Modifier.clickable { onSyncClick() }
+                        } else Modifier
+                    )
             ) {
                 when (syncState) {
                     is SyncState.Syncing -> {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp, color = RkGoldPrimary)
-                        Text("Synchronizing sales to Firestore...", fontSize = 13.sp, color = RkTextPrimary)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = RkGoldPrimary
+                        )
+                        Text(
+                            text = "Synchronizing sales to Firestore…",
+                            fontSize = 13.sp,
+                            color = RkTextPrimary
+                        )
                     }
                     is SyncState.Success -> {
-                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = PrinterConnectedGreen, modifier = Modifier.size(20.dp))
-                        Text(syncState.message, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = RkTextPrimary)
+                        Icon(
+                            imageVector = Icons.Default.CloudDone,
+                            contentDescription = null,
+                            tint = PrinterConnectedGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = syncState.message,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = RkTextPrimary
+                        )
                     }
-                    is SyncState.Error -> {
-                        Icon(Icons.Default.CloudOff, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
-                        Text("Sync error: ${syncState.message}", fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
+                    is SyncState.AllSynced -> {
+                        Icon(
+                            imageVector = Icons.Default.CloudDone,
+                            contentDescription = null,
+                            tint = PrinterConnectedGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "All sales are synced",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = RkTextPrimary
+                        )
                     }
-                    is SyncState.Idle -> {
-                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(20.dp))
-                        Text("Cloud Sales Synchronization: Online", fontSize = 13.sp, color = RkTextPrimary)
+                    is SyncState.Offline -> {
+                        Icon(
+                            imageVector = Icons.Default.CloudOff,
+                            contentDescription = null,
+                            tint = RkOrangeSecondary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Cloud Sync Offline",
+                            fontSize = 13.sp,
+                            color = RkOrangeSecondary
+                        )
+                    }
+                    is SyncState.Failed -> {
+                        Icon(
+                            imageVector = Icons.Default.CloudOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = "Sync Failed — Tap to Retry",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                    is SyncState.Pending -> {
+                        Icon(
+                            imageVector = Icons.Default.Cloud,
+                            contentDescription = null,
+                            tint = RkGoldPrimary,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(
+                            text = syncState.message,
+                            fontSize = 13.sp,
+                            color = RkTextPrimary
+                        )
                     }
                 }
             }
@@ -381,11 +453,23 @@ fun CloudSyncBar(
                 onClick = onSyncClick,
                 shape = RoundedCornerShape(8.dp),
                 border = BorderStroke(1.dp, RkBorderGoldSubtle),
-                modifier = Modifier.height(36.dp)
+                modifier = Modifier
+                    .height(36.dp)
+                    .testTag("sync_sales_button")
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(16.dp))
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    contentDescription = "Sync",
+                    tint = RkGoldPrimary,
+                    modifier = Modifier.size(16.dp)
+                )
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Sync Now", fontSize = 12.sp, color = RkGoldPrimary)
+                Text(
+                    text = "Sync",
+                    fontSize = 12.sp,
+                    color = RkGoldPrimary,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }

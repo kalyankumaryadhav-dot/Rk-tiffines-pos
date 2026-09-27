@@ -37,6 +37,9 @@ interface MenuItemDao {
     @Query("DELETE FROM menu_items WHERE id = :id")
     suspend fun deleteMenuItemById(id: Long)
 
+    @Query("UPDATE menu_items SET category = :newCategory WHERE category = :oldCategory")
+    suspend fun updateCategoryName(oldCategory: String, newCategory: String)
+
     @Query("DELETE FROM menu_items")
     suspend fun deleteAllMenuItems()
 }
@@ -55,8 +58,17 @@ interface OrderDao {
     @Query("SELECT * FROM orders WHERE billNumber = :billNumber LIMIT 1")
     suspend fun getOrderByBillNumber(billNumber: Long): OrderEntity?
 
+    @Query("SELECT * FROM orders WHERE billId = :billId LIMIT 1")
+    suspend fun getOrderByBillId(billId: String): OrderEntity?
+
     @Query("SELECT * FROM orders WHERE isSynced = 0 ORDER BY timestamp ASC")
     suspend fun getUnsyncedOrders(): List<OrderEntity>
+
+    @Query("SELECT COUNT(*) FROM orders WHERE isSynced = 0")
+    suspend fun getUnsyncedOrdersCount(): Int
+
+    @Query("SELECT COUNT(*) FROM orders WHERE isSynced = 0")
+    fun getUnsyncedOrdersCountFlow(): Flow<Int>
 
     @Query("UPDATE orders SET isSynced = 1 WHERE billId = :billId")
     suspend fun markOrderAsSynced(billId: String)

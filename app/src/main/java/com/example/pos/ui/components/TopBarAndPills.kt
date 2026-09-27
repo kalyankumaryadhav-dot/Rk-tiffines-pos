@@ -262,38 +262,45 @@ fun PrinterStatusPill(
     printerState: PrinterConnectionState,
     onClick: () -> Unit
 ) {
-    val (bgColor, textColor, statusText, icon) = when (printerState) {
+    val (bgColor, dotColor, textColor, statusText) = when (printerState) {
         is PrinterConnectionState.Connected -> {
-            val name = printerState.deviceName.take(10)
             Tuple4(
                 PrinterConnectedGreen.copy(alpha = 0.15f),
                 PrinterConnectedGreen,
-                "$name OK",
-                Icons.Default.BluetoothConnected
+                PrinterConnectedGreen,
+                "Bluetooth Connected"
             )
         }
         is PrinterConnectionState.Connecting -> {
             Tuple4(
                 PrinterConnectingYellow.copy(alpha = 0.15f),
                 PrinterConnectingYellow,
-                "Connecting...",
-                Icons.Default.Bluetooth
+                PrinterConnectingYellow,
+                "Bluetooth Connecting…"
             )
         }
         is PrinterConnectionState.Disconnected -> {
             Tuple4(
                 Color(0x28E64A19),
+                PrinterErrorRed,
                 Color(0xFFFF7043),
-                "POS-8380 Disconnected",
-                Icons.Default.BluetoothDisabled
+                "Bluetooth Disconnected"
+            )
+        }
+        is PrinterConnectionState.Unavailable -> {
+            Tuple4(
+                Color(0x28E64A19),
+                PrinterErrorRed,
+                Color(0xFFFF7043),
+                "Bluetooth Unavailable"
             )
         }
         is PrinterConnectionState.Error -> {
             Tuple4(
                 PrinterErrorRed.copy(alpha = 0.15f),
                 PrinterErrorRed,
-                "Printer Error",
-                Icons.Default.Print
+                PrinterErrorRed,
+                "Bluetooth Disconnected"
             )
         }
     }
@@ -313,16 +320,16 @@ fun PrinterStatusPill(
         ) {
             if (printerState is PrinterConnectionState.Connecting) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(14.dp),
+                    modifier = Modifier.size(10.dp),
                     strokeWidth = 2.dp,
-                    color = textColor
+                    color = dotColor
                 )
             } else {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = "Printer status",
-                    tint = textColor,
-                    modifier = Modifier.size(16.dp)
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .clip(CircleShape)
+                        .background(dotColor)
                 )
             }
             Text(
@@ -339,10 +346,12 @@ fun PrinterStatusPill(
 @Composable
 fun SyncStatusIndicator(syncState: SyncState) {
     val (icon, tint) = when (syncState) {
-        is SyncState.Syncing -> Pair(Icons.Default.Cloud, MaterialTheme.colorScheme.primary)
+        is SyncState.Syncing -> Pair(Icons.Default.Cloud, RkGoldPrimary)
         is SyncState.Success -> Pair(Icons.Default.CloudDone, PrinterConnectedGreen)
-        is SyncState.Error -> Pair(Icons.Default.CloudOff, MaterialTheme.colorScheme.error)
-        is SyncState.Idle -> Pair(Icons.Default.CloudDone, MaterialTheme.colorScheme.outline)
+        is SyncState.AllSynced -> Pair(Icons.Default.CloudDone, PrinterConnectedGreen)
+        is SyncState.Offline -> Pair(Icons.Default.CloudOff, RkOrangeSecondary)
+        is SyncState.Failed -> Pair(Icons.Default.CloudOff, MaterialTheme.colorScheme.error)
+        is SyncState.Pending -> Pair(Icons.Default.Cloud, RkGoldPrimary)
     }
 
     Box(

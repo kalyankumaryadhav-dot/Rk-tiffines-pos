@@ -181,9 +181,9 @@ fun ReceiptFormatScreen(
                             )
                             Text(
                                 text = when (printerState) {
-                                    is PrinterConnectionState.Connected -> "POS-8380 Ready"
-                                    is PrinterConnectionState.Connecting -> "Connecting..."
-                                    else -> "Printer Offline"
+                                    is PrinterConnectionState.Connected -> "Bluetooth Connected"
+                                    is PrinterConnectionState.Connecting -> "Bluetooth Connecting…"
+                                    else -> "Bluetooth Disconnected"
                                 },
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
                             )

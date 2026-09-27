@@ -10,6 +10,7 @@ import com.example.pos.data.remote.SyncState
 import com.example.pos.data.repository.PosRepository
 import com.example.pos.model.BillRecord
 import com.example.pos.model.CartItem
+import com.example.pos.model.DepartmentInfo
 import com.example.pos.model.ItemFontSize
 import com.example.pos.model.MenuCategories
 import com.example.pos.model.MenuItem
@@ -98,6 +99,7 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
     val settings: StateFlow<ShopSettings> = repository.settingsState
     val printerState: StateFlow<PrinterConnectionState> = printerManager.connectionState
     val syncState: StateFlow<SyncState> = repository.syncState
+    val departments: StateFlow<List<DepartmentInfo>> = repository.departmentsState
 
     val allMenuItems: StateFlow<List<MenuItem>> = repository.allMenuItems.stateIn(
         scope = viewModelScope,
@@ -553,16 +555,56 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addDepartment(name: String, code: String = "") {
+        viewModelScope.launch {
+            repository.addDepartment(name, code)
+            _eventFlow.emit("Department \"${name.trim().uppercase()}\" added")
+        }
+    }
+
+    fun renameDepartment(oldName: String, newName: String, newCode: String = "") {
+        viewModelScope.launch {
+            repository.renameDepartment(oldName, newName, newCode)
+            _eventFlow.emit("Department updated to \"${newName.trim().uppercase()}\"")
+        }
+    }
+
+    fun deleteDepartment(dept: DepartmentInfo) {
+        viewModelScope.launch {
+            repository.deleteDepartment(dept)
+            _eventFlow.emit("Department \"${dept.name}\" deleted")
+        }
+    }
+
+    fun reorderDepartments(newList: List<DepartmentInfo>) {
+        viewModelScope.launch {
+            repository.reorderDepartments(newList)
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Cloud Sync
     // -------------------------------------------------------------------------
     fun triggerFirestoreSync() {
         viewModelScope.launch {
+            val pendingCount = repository.getUnsyncedCount()
+            if (pendingCount == 0) {
+                repository.setSyncState(SyncState.AllSynced)
+                _eventFlow.emit("All sales are synced.")
+                return@launch
+            }
+
             val result = repository.syncSalesToFirestore()
             if (result.isSuccess) {
-                _eventFlow.emit("Cloud Sync: Synced ${result.getOrNull()} bills to Firestore")
+                val synced = result.getOrNull() ?: 0
+                if (synced > 0) {
+                    _eventFlow.emit("Sales synced successfully ($synced bills)")
+                } else {
+                    _eventFlow.emit("All sales are synced.")
+                }
             } else {
-                _eventFlow.emit("Cloud Sync failed: ${result.exceptionOrNull()?.message}")
+                val errMsg = result.exceptionOrNull()?.message ?: "Check connection and retry"
+                _eventFlow.emit("Sync failed: $errMsg")
             }
         }
     }

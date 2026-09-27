@@ -47,6 +47,7 @@ sealed interface PrinterConnectionState {
     data object Disconnected : PrinterConnectionState
     data object Connecting : PrinterConnectionState
     data class Connected(val deviceName: String, val address: String) : PrinterConnectionState
+    data object Unavailable : PrinterConnectionState
     data class Error(val message: String) : PrinterConnectionState
 }
 

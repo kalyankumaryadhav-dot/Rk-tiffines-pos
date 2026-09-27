@@ -409,6 +409,13 @@ fun PrinterSettingsSection(
                                 }
                             }
                         }
+                        is PrinterConnectionState.Unavailable -> {
+                            Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = RkTextMuted, modifier = Modifier.size(24.dp))
+                            Column {
+                                Text("Bluetooth Unavailable", fontWeight = FontWeight.Bold, color = RkTextPrimary)
+                                Text("Bluetooth adapter is not available or disabled", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
+                            }
+                        }
                         is PrinterConnectionState.Error -> {
                             Icon(Icons.Default.Print, contentDescription = null, tint = PrinterErrorRed, modifier = Modifier.size(24.dp))
                             Text("Error: ${printerState.message}", color = PrinterErrorRed, fontWeight = FontWeight.SemiBold)

@@ -21,7 +21,7 @@ object MenuCategories {
     const val MAGGI = "MAGGI"
     const val SNACKS = "SNACKS"
 
-    val ALL_DEPARTMENTS = listOf(
+    val DEFAULT_DEPARTMENTS = listOf(
         DepartmentInfo(1, SOUTH_INDIAN, "SI"),
         DepartmentInfo(2, NORMAL_DOSA, "ND"),
         DepartmentInfo(3, PESARATTU, "PS"),
@@ -36,7 +36,18 @@ object MenuCategories {
         DepartmentInfo(12, SNACKS, "SN")
     )
 
-    val ALL_CATEGORIES = ALL_DEPARTMENTS.map { it.name }
+    private val _departmentsList = ArrayList(DEFAULT_DEPARTMENTS)
+
+    val ALL_DEPARTMENTS: List<DepartmentInfo>
+        get() = _departmentsList
+
+    val ALL_CATEGORIES: List<String>
+        get() = _departmentsList.map { it.name }
+
+    fun updateDepartments(newList: List<DepartmentInfo>) {
+        _departmentsList.clear()
+        _departmentsList.addAll(newList)
+    }
 
     fun getDepartmentByCode(code: String): DepartmentInfo? =
         ALL_DEPARTMENTS.firstOrNull { it.code.equals(code, ignoreCase = true) }

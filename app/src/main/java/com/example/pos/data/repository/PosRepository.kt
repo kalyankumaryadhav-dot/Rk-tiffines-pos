@@ -15,7 +15,9 @@ import com.example.pos.data.remote.SalesFirestoreRepository
 import com.example.pos.data.remote.SyncState
 import com.example.pos.model.BillRecord
 import com.example.pos.model.CartItem
+import com.example.pos.model.DepartmentInfo
 import com.example.pos.model.ItemFontSize
+import com.example.pos.model.MenuCategories
 import com.example.pos.model.MenuItem
 import com.example.pos.model.OrderType
 import com.example.pos.model.PaymentMode
@@ -60,6 +62,9 @@ class PosRepository(
     private val _settingsState = MutableStateFlow(ShopSettings())
     val settingsState: StateFlow<ShopSettings> = _settingsState.asStateFlow()
 
+    private val _departmentsState = MutableStateFlow<List<DepartmentInfo>>(MenuCategories.ALL_DEPARTMENTS)
+    val departmentsState: StateFlow<List<DepartmentInfo>> = _departmentsState.asStateFlow()
+
     val syncState: StateFlow<SyncState> = firestoreRepository.syncState
 
     val allMenuItems: Flow<List<MenuItem>> = menuItemDao.getAllMenuItems().map { list ->
@@ -97,6 +102,8 @@ class PosRepository(
         menuItemDao.deleteAllMenuItems()
         menuItemDao.insertMenuItems(DefaultMenuData.INITIAL_MENU_ITEMS)
         settingDao.saveSetting(AppSettingEntity("menu_departments_version", "v3_rk_tiffines_115_items"))
+        _departmentsState.value = MenuCategories.ALL_DEPARTMENTS
+        settingDao.saveSetting(AppSettingEntity("custom_departments_json", serializeDepartments(MenuCategories.ALL_DEPARTMENTS)))
     }
 
     private suspend fun initSettings() {
@@ -172,6 +179,14 @@ class PosRepository(
                 showLogo = showLogo,
                 receiptFormat = receiptFormat
             )
+
+            val customDeptJson = settingDao.getSettingValue("custom_departments_json")
+            if (!customDeptJson.isNullOrBlank()) {
+                val parsed = deserializeDepartments(customDeptJson)
+                if (parsed.isNotEmpty()) {
+                    _departmentsState.value = parsed
+                }
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error loading settings", e)
         }
@@ -359,6 +374,14 @@ class PosRepository(
         return firestoreRepository.syncPendingOrders()
     }
 
+    suspend fun getUnsyncedCount(): Int = withContext(Dispatchers.IO) {
+        orderDao.getUnsyncedOrdersCount()
+    }
+
+    fun setSyncState(state: SyncState) {
+        firestoreRepository.setSyncState(state)
+    }
+
     // -------------------------------------------------------------------------
     // Menu Management
     // -------------------------------------------------------------------------
@@ -373,6 +396,94 @@ class PosRepository(
 
     suspend fun deleteMenuItem(id: Long) = withContext(Dispatchers.IO) {
         menuItemDao.deleteMenuItemById(id)
+    }
+
+    // -------------------------------------------------------------------------
+    // Department Management
+    // -------------------------------------------------------------------------
+
+    suspend fun addDepartment(name: String, code: String) = withContext(Dispatchers.IO) {
+        val cleanName = name.trim().uppercase()
+        if (cleanName.isBlank()) return@withContext
+        val current = _departmentsState.value.toMutableList()
+        val nextId = (current.maxOfOrNull { it.id } ?: 0) + 1
+        val cleanCode = if (code.isNotBlank()) code.trim().uppercase() else generateDepartmentCode(cleanName)
+        current.add(DepartmentInfo(id = nextId, name = cleanName, code = cleanCode, isActive = true))
+        _departmentsState.value = current
+        settingDao.saveSetting(AppSettingEntity("custom_departments_json", serializeDepartments(current)))
+    }
+
+    suspend fun renameDepartment(oldName: String, newName: String, newCode: String) = withContext(Dispatchers.IO) {
+        val cleanNewName = newName.trim().uppercase()
+        if (cleanNewName.isBlank()) return@withContext
+        val cleanNewCode = if (newCode.isNotBlank()) newCode.trim().uppercase() else generateDepartmentCode(cleanNewName)
+        val current = _departmentsState.value.toMutableList()
+        val index = current.indexOfFirst { it.name.equals(oldName, ignoreCase = true) }
+        if (index != -1) {
+            val oldDept = current[index]
+            current[index] = oldDept.copy(name = cleanNewName, code = cleanNewCode)
+            _departmentsState.value = current
+            settingDao.saveSetting(AppSettingEntity("custom_departments_json", serializeDepartments(current)))
+            // Update menu items in database with oldCategory to newCategory so items are preserved!
+            menuItemDao.updateCategoryName(oldName, cleanNewName)
+        }
+    }
+
+    suspend fun deleteDepartment(department: DepartmentInfo) = withContext(Dispatchers.IO) {
+        val current = _departmentsState.value.toMutableList()
+        current.removeAll { it.id == department.id || it.name.equals(department.name, ignoreCase = true) }
+        _departmentsState.value = current
+        settingDao.saveSetting(AppSettingEntity("custom_departments_json", serializeDepartments(current)))
+        // Menu items assigned to this department are preserved in database!
+    }
+
+    suspend fun reorderDepartments(newList: List<DepartmentInfo>) = withContext(Dispatchers.IO) {
+        _departmentsState.value = newList
+        settingDao.saveSetting(AppSettingEntity("custom_departments_json", serializeDepartments(newList)))
+    }
+
+    private fun generateDepartmentCode(name: String): String {
+        val parts = name.split(" ").filter { it.isNotBlank() }
+        return if (parts.size >= 2) {
+            (parts[0].take(1) + parts[1].take(1)).uppercase()
+        } else {
+            name.take(2).uppercase()
+        }
+    }
+
+    private fun serializeDepartments(departments: List<DepartmentInfo>): String {
+        val array = JSONArray()
+        for (d in departments) {
+            val obj = JSONObject().apply {
+                put("id", d.id)
+                put("name", d.name)
+                put("code", d.code)
+                put("isActive", d.isActive)
+            }
+            array.put(obj)
+        }
+        return array.toString()
+    }
+
+    private fun deserializeDepartments(json: String): List<DepartmentInfo> {
+        val list = mutableListOf<DepartmentInfo>()
+        try {
+            val array = JSONArray(json)
+            for (i in 0 until array.length()) {
+                val obj = array.getJSONObject(i)
+                list.add(
+                    DepartmentInfo(
+                        id = obj.optInt("id", i + 1),
+                        name = obj.optString("name", "DEPT"),
+                        code = obj.optString("code", "DP"),
+                        isActive = obj.optBoolean("isActive", true)
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error deserializing departments", e)
+        }
+        return list
     }
 
     // -------------------------------------------------------------------------

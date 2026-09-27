@@ -26,6 +26,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import java.io.OutputStream
 import java.nio.charset.Charset
 import java.util.UUID
@@ -63,6 +64,7 @@ class BluetoothPrinterManager(
     private var reconnectJob: Job? = null
     private var reconnectAttempts = 0
 
+    // BroadcastReceiver for device discovery scan
     private val discoveryReceiver = object : BroadcastReceiver() {
         @SuppressLint("MissingPermission")
         override fun onReceive(c: Context?, intent: Intent?) {
@@ -99,7 +101,90 @@ class BluetoothPrinterManager(
         }
     }
 
-    private var isReceiverRegistered = false
+    // BroadcastReceiver for dynamic Bluetooth connection state changes
+    private val connectionReceiver = object : BroadcastReceiver() {
+        @SuppressLint("MissingPermission")
+        override fun onReceive(c: Context?, intent: Intent?) {
+            when (intent?.action) {
+                BluetoothDevice.ACTION_ACL_DISCONNECTED,
+                BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED -> {
+                    val device: BluetoothDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    }
+                    Log.i(TAG, "Bluetooth device ACL disconnected: ${device?.address}")
+                    val current = _connectionState.value
+                    if (current is PrinterConnectionState.Connected) {
+                        if (device == null || device.address.equals(current.address, ignoreCase = true)) {
+                            Log.i(TAG, "Connected printer disconnected. Updating state immediately.")
+                            scope.launch(Dispatchers.IO) {
+                                internalDisconnect()
+                                _connectionState.value = PrinterConnectionState.Disconnected
+                            }
+                        }
+                    } else if (current is PrinterConnectionState.Connecting) {
+                        scope.launch(Dispatchers.IO) {
+                            internalDisconnect()
+                            _connectionState.value = PrinterConnectionState.Disconnected
+                        }
+                    }
+                }
+                BluetoothDevice.ACTION_ACL_CONNECTED -> {
+                    val device: BluetoothDevice? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE, BluetoothDevice::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE)
+                    }
+                    Log.i(TAG, "Bluetooth device ACL connected: ${device?.address}")
+                    if (activeSocket?.isConnected == true && device != null) {
+                        val current = _connectionState.value
+                        if (current !is PrinterConnectionState.Connected) {
+                            val name = try { device.name ?: "Printer" } catch (e: SecurityException) { "Printer" }
+                            _connectionState.value = PrinterConnectionState.Connected(name, device.address)
+                        }
+                    }
+                }
+                BluetoothAdapter.ACTION_STATE_CHANGED -> {
+                    val state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR)
+                    if (state == BluetoothAdapter.STATE_OFF || state == BluetoothAdapter.STATE_TURNING_OFF) {
+                        Log.i(TAG, "Bluetooth disabled on device. Setting status to Disconnected.")
+                        scope.launch(Dispatchers.IO) {
+                            internalDisconnect()
+                            _connectionState.value = PrinterConnectionState.Disconnected
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private var isDiscoveryReceiverRegistered = false
+    private var isConnectionReceiverRegistered = false
+
+    init {
+        registerConnectionReceiver()
+    }
+
+    private fun registerConnectionReceiver() {
+        if (!isConnectionReceiverRegistered) {
+            val filter = IntentFilter().apply {
+                addAction(BluetoothDevice.ACTION_ACL_CONNECTED)
+                addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED)
+                addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED)
+                addAction(BluetoothAdapter.ACTION_STATE_CHANGED)
+            }
+            try {
+                ContextCompat.registerReceiver(context, connectionReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+                isConnectionReceiverRegistered = true
+                Log.i(TAG, "Bluetooth ACL connection receiver registered successfully")
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not register Bluetooth connection receiver: ${e.message}")
+            }
+        }
+    }
 
     fun hasBluetoothPermission(): Boolean {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
@@ -185,25 +270,37 @@ class BluetoothPrinterManager(
     }
 
     private fun registerDiscoveryReceiver() {
-        if (!isReceiverRegistered) {
+        if (!isDiscoveryReceiverRegistered) {
             val filter = IntentFilter().apply {
                 addAction(BluetoothDevice.ACTION_FOUND)
                 addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED)
             }
-            context.registerReceiver(discoveryReceiver, filter)
-            isReceiverRegistered = true
+            try {
+                ContextCompat.registerReceiver(context, discoveryReceiver, filter, ContextCompat.RECEIVER_EXPORTED)
+                isDiscoveryReceiverRegistered = true
+            } catch (e: Exception) {
+                Log.w(TAG, "Could not register discovery receiver: ${e.message}")
+            }
         }
     }
 
     fun cleanup() {
         disconnect()
-        if (isReceiverRegistered) {
+        if (isDiscoveryReceiverRegistered) {
             try {
                 context.unregisterReceiver(discoveryReceiver)
             } catch (e: Exception) {
-                Log.e(TAG, "Error unregistering receiver", e)
+                Log.e(TAG, "Error unregistering discovery receiver", e)
             }
-            isReceiverRegistered = false
+            isDiscoveryReceiverRegistered = false
+        }
+        if (isConnectionReceiverRegistered) {
+            try {
+                context.unregisterReceiver(connectionReceiver)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error unregistering connection receiver", e)
+            }
+            isConnectionReceiverRegistered = false
         }
     }
 
@@ -211,12 +308,12 @@ class BluetoothPrinterManager(
     suspend fun connect(macAddress: String, expectedName: String = "POS-8380"): Result<Unit> = withContext(Dispatchers.IO) {
         if (!hasBluetoothPermission()) {
             val err = "Bluetooth permission not granted"
-            _connectionState.value = PrinterConnectionState.Error(err)
+            _connectionState.value = PrinterConnectionState.Disconnected
             return@withContext Result.failure(SecurityException(err))
         }
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
             val err = "Bluetooth is turned off"
-            _connectionState.value = PrinterConnectionState.Error(err)
+            _connectionState.value = PrinterConnectionState.Disconnected
             return@withContext Result.failure(IllegalStateException(err))
         }
 
@@ -224,7 +321,7 @@ class BluetoothPrinterManager(
         internalDisconnect()
 
         _connectionState.value = PrinterConnectionState.Connecting
-        Log.i(TAG, "Connecting to printer at MAC: $macAddress...")
+        Log.i(TAG, "Connecting to Bluetooth printer at MAC: $macAddress...")
 
         try {
             // Cancel discovery before connecting as recommended by Android Bluetooth docs
@@ -251,13 +348,13 @@ class BluetoothPrinterManager(
                 Log.i(TAG, "Successfully connected to $deviceName ($macAddress)")
                 Result.success(Unit)
             } else {
-                _connectionState.value = PrinterConnectionState.Error("Connection established but socket is closed")
+                _connectionState.value = PrinterConnectionState.Disconnected
                 Result.failure(Exception("Socket not connected"))
             }
         } catch (e: Exception) {
             Log.e(TAG, "Failed to connect to printer at $macAddress", e)
             internalDisconnect()
-            _connectionState.value = PrinterConnectionState.Error(e.localizedMessage ?: "Failed to connect to printer")
+            _connectionState.value = PrinterConnectionState.Disconnected
             Result.failure(e)
         }
     }
@@ -326,7 +423,7 @@ class BluetoothPrinterManager(
             val socket = activeSocket
             val stream = outputStream
             if (socket == null || stream == null || !socket.isConnected) {
-                _connectionState.value = PrinterConnectionState.Error("Printer is not connected")
+                _connectionState.value = PrinterConnectionState.Disconnected
                 return@withContext Result.failure(IllegalStateException("Printer is not connected"))
             }
 
@@ -334,9 +431,14 @@ class BluetoothPrinterManager(
                 stream.write(bytes)
                 stream.flush()
                 Result.success(Unit)
+            } catch (e: IOException) {
+                Log.e(TAG, "IO error writing to printer, socket disconnected", e)
+                internalDisconnect()
+                _connectionState.value = PrinterConnectionState.Disconnected
+                Result.failure(e)
             } catch (e: Exception) {
                 Log.e(TAG, "Error writing data to printer", e)
-                _connectionState.value = PrinterConnectionState.Error("Print error: ${e.localizedMessage}")
+                _connectionState.value = PrinterConnectionState.Disconnected
                 Result.failure(e)
             }
         }
@@ -349,7 +451,7 @@ class BluetoothPrinterManager(
             append("      $shopName\n")
             append("   THERMAL PRINTER TEST RECEIPT\n")
             append("================================\n")
-            append("Printer: POS-8380\n")
+            append("Printer: POS Thermal 80mm\n")
             append("Protocol: ESC/POS Bluetooth SPP\n")
             append("Status: ONLINE & READY\n")
             append("Auto Cut: ${if (autoCut) "ENABLED" else "DISABLED"}\n")
