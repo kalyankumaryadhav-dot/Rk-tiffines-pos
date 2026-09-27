@@ -166,6 +166,13 @@ object EscPosCommands {
     }
 
     /**
+     * Formats 4 fixed columns for Token/KOT row: Item Name, Qty, Rate, Total
+     */
+    fun formatKotRow(name: String, qty: String, rate: String, total: String, totalColumns: Int): String {
+        return formatItemRow(name, qty, rate, total, totalColumns)
+    }
+
+    /**
      * Formats KOT row: Item Name and Quantity (bold and prominent)
      */
     fun formatKotRow(name: String, qty: String, totalColumns: Int): String {

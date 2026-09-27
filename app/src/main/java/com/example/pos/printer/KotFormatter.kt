@@ -72,35 +72,37 @@ object KotFormatter {
         stream.write(EscPosCommands.separatorLine(cols, '='))
 
         // 7. Column Headings
+        stream.write(EscPosCommands.ALIGN_LEFT)
         stream.write(EscPosCommands.BOLD_ON)
-        val heading = EscPosCommands.formatTwoColumns(
-            left = "ITEM",
-            right = "QTY",
+        val heading = EscPosCommands.formatItemRow(
+            name = "ITEM",
+            qty = "QTY",
+            rate = "RATE",
+            total = "TOTAL",
             totalColumns = cols
         )
         stream.write(heading.toByteArray(charset))
         stream.write(EscPosCommands.separatorLine(cols, '-'))
         stream.write(EscPosCommands.BOLD_OFF)
 
-        // 8. Items with configurable KOT item font size (Large or Normal)
+        // 8. Items with 4 fixed columns: ITEM, QTY, RATE, TOTAL
         for (item in bill.items) {
             val name = item.menuItem.name
             val qty = item.quantity.toString()
+            val rate = "%.0f".format(item.menuItem.price)
+            val total = "%.0f".format(item.total)
 
+            stream.write(EscPosCommands.ALIGN_LEFT)
+            stream.write(EscPosCommands.BOLD_ON)
             if (settings.kotItemFontSize == ItemFontSize.LARGE) {
-                // Large, bold, easily readable from across the kitchen counter
-                stream.write(EscPosCommands.BOLD_ON)
                 stream.write(EscPosCommands.TEXT_DOUBLE_HEIGHT)
-                val line = EscPosCommands.formatKotRow(name, qty, cols)
-                stream.write(line.toByteArray(charset))
-                stream.write(EscPosCommands.TEXT_NORMAL)
-                stream.write(EscPosCommands.BOLD_OFF)
-            } else {
-                stream.write(EscPosCommands.BOLD_ON)
-                val line = EscPosCommands.formatKotRow(name, qty, cols)
-                stream.write(line.toByteArray(charset))
-                stream.write(EscPosCommands.BOLD_OFF)
             }
+            val line = EscPosCommands.formatItemRow(name, qty, rate, total, cols)
+            stream.write(line.toByteArray(charset))
+            if (settings.kotItemFontSize == ItemFontSize.LARGE) {
+                stream.write(EscPosCommands.TEXT_NORMAL)
+            }
+            stream.write(EscPosCommands.BOLD_OFF)
         }
 
         // 9. Bottom summary
