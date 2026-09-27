@@ -74,7 +74,21 @@ import com.example.pos.model.PaymentMode
 import com.example.pos.ui.PosViewModel
 import com.example.ui.theme.CardPurple
 import com.example.ui.theme.CashGreen
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkBrandGradient
+import com.example.ui.theme.RkGoldOrangeGradient
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceDark
+import com.example.ui.theme.RkSurfaceElevated
+import com.example.ui.theme.RkSurfaceVariantDark
+import com.example.ui.theme.RkTextMuted
+import com.example.ui.theme.RkTextOnGold
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkTextSecondary
+import com.example.ui.theme.RkYellowBright
 import com.example.ui.theme.UpiBlue
+import androidx.compose.foundation.BorderStroke
 
 @Composable
 fun BillingScreen(
@@ -127,7 +141,7 @@ fun BillingScreen(
                     modifier = Modifier
                         .width(1.dp)
                         .fillMaxHeight()
-                        .background(MaterialTheme.colorScheme.outlineVariant)
+                        .background(RkBorderGoldSubtle)
                 )
 
                 // Cart Pane
@@ -195,15 +209,17 @@ fun BillingScreen(
                 AlertDialog(
                     onDismissRequest = { showPhoneCartModal = false },
                     confirmButton = {},
+                    containerColor = RkSurfaceElevated,
+                    titleContentColor = RkTextPrimary,
                     title = {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("Current Order Bill", fontWeight = FontWeight.Bold)
+                            Text("Current Order Bill", fontWeight = FontWeight.Bold, color = RkTextPrimary)
                             IconButton(onClick = { showPhoneCartModal = false }) {
-                                Icon(Icons.Default.Clear, contentDescription = "Close")
+                                Icon(Icons.Default.Clear, contentDescription = "Close", tint = RkTextPrimary)
                             }
                         }
                     },
@@ -238,7 +254,8 @@ fun OrderTypeBar(
     onOrderTypeChange: (OrderType) -> Unit
 ) {
     Card(
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
@@ -252,23 +269,31 @@ fun OrderTypeBar(
                     onClick = { onOrderTypeChange(OrderType.DINE_IN) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (orderType == OrderType.DINE_IN) {
-                            MaterialTheme.colorScheme.primary
+                            RkGoldPrimary
                         } else {
-                            MaterialTheme.colorScheme.surface
+                            RkSurfaceVariantDark
                         },
                         contentColor = if (orderType == OrderType.DINE_IN) {
-                            MaterialTheme.colorScheme.onPrimary
+                            RkTextOnGold
                         } else {
-                            MaterialTheme.colorScheme.onSurface
+                            RkTextPrimary
                         }
                     ),
+                    border = if (orderType != OrderType.DINE_IN) {
+                        BorderStroke(1.dp, RkBorderGoldSubtle)
+                    } else null,
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
                         .testTag("dine_in_button")
                 ) {
-                    Icon(Icons.Default.DinnerDining, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Default.DinnerDining,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (orderType == OrderType.DINE_IN) RkTextOnGold else RkGoldPrimary
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("DINE IN", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
@@ -278,23 +303,31 @@ fun OrderTypeBar(
                     onClick = { onOrderTypeChange(OrderType.PARCEL) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (orderType == OrderType.PARCEL) {
-                            MaterialTheme.colorScheme.secondary
+                            RkGoldPrimary
                         } else {
-                            MaterialTheme.colorScheme.surface
+                            RkSurfaceVariantDark
                         },
                         contentColor = if (orderType == OrderType.PARCEL) {
-                            MaterialTheme.colorScheme.onSecondary
+                            RkTextOnGold
                         } else {
-                            MaterialTheme.colorScheme.onSurface
+                            RkTextPrimary
                         }
                     ),
+                    border = if (orderType != OrderType.PARCEL) {
+                        BorderStroke(1.dp, RkBorderGoldSubtle)
+                    } else null,
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
                         .testTag("parcel_button")
                 ) {
-                    Icon(Icons.Default.LocalMall, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Default.LocalMall,
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        tint = if (orderType == OrderType.PARCEL) RkTextOnGold else RkGoldPrimary
+                    )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text("PARCEL", fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
@@ -318,7 +351,8 @@ fun CategoryChipsBar(
             val isSelected = dept.name == selectedCategory
             Surface(
                 shape = RoundedCornerShape(10.dp),
-                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                color = if (isSelected) RkGoldPrimary else RkSurfaceDark,
+                border = if (!isSelected) BorderStroke(1.dp, RkBorderGoldSubtle) else null,
                 modifier = Modifier
                     .testTag("category_chip_${dept.name}")
                     .clip(RoundedCornerShape(10.dp))
@@ -331,14 +365,14 @@ fun CategoryChipsBar(
                 ) {
                     Surface(
                         shape = RoundedCornerShape(4.dp),
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                        color = if (isSelected) RkTextOnGold.copy(alpha = 0.15f) else RkSurfaceVariantDark
                     ) {
                         Text(
                             text = dept.code,
                             modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                                color = if (isSelected) RkTextOnGold else RkGoldPrimary
                             )
                         )
                     }
@@ -346,7 +380,7 @@ fun CategoryChipsBar(
                         text = dept.name,
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (isSelected) RkTextOnGold else RkTextPrimary,
                             letterSpacing = 0.3.sp
                         )
                     )
@@ -412,9 +446,10 @@ fun MenuItemCard(
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f) else MaterialTheme.colorScheme.surface
+            containerColor = if (isSelected) Color(0xFF1E1A14) else RkSurfaceDark
         ),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        border = if (isSelected) BorderStroke(1.5.dp, RkGoldPrimary) else BorderStroke(1.dp, RkBorderGoldSubtle),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier
             .fillMaxWidth()
             .height(105.dp)
@@ -428,12 +463,13 @@ fun MenuItemCard(
                 .padding(8.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Item Name
+            // Item Name - Warm white
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    color = RkTextPrimary
                 ),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -449,7 +485,7 @@ fun MenuItemCard(
                     text = "₹ %.0f".format(item.price),
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = RkYellowBright
                     )
                 )
 
@@ -460,14 +496,15 @@ fun MenuItemCard(
                     ) {
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.surface,
+                            color = RkSurfaceVariantDark,
+                            border = BorderStroke(1.dp, RkBorderGoldSubtle),
                             modifier = Modifier
                                 .size(28.dp)
                                 .clip(CircleShape)
                                 .clickable { onDecrement() }
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Remove, contentDescription = "Decrease", modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Remove, contentDescription = "Decrease", tint = RkTextPrimary, modifier = Modifier.size(16.dp))
                             }
                         }
 
@@ -475,33 +512,34 @@ fun MenuItemCard(
                             text = inCartQty.toString(),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
+                            color = RkTextPrimary,
                             modifier = Modifier.padding(horizontal = 2.dp)
                         )
 
                         Surface(
                             shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primary,
+                            color = RkGoldPrimary,
                             modifier = Modifier
                                 .size(28.dp)
                                 .clip(CircleShape)
                                 .clickable { onAdd() }
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Add, contentDescription = "Add", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(16.dp))
+                                Icon(Icons.Default.Add, contentDescription = "Add", tint = RkTextOnGold, modifier = Modifier.size(16.dp))
                             }
                         }
                     }
                 } else {
                     Surface(
                         shape = CircleShape,
-                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        color = RkGoldPrimary,
                         modifier = Modifier
                             .size(28.dp)
                             .clip(CircleShape)
                             .clickable { onAdd() }
                     ) {
                         Box(contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Add, contentDescription = "Add to cart", modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.Add, contentDescription = "Add to cart", tint = RkTextOnGold, modifier = Modifier.size(18.dp))
                         }
                     }
                 }
@@ -545,24 +583,24 @@ fun CartPane(
                 Column {
                     Text(
                         text = "Current Bill",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
                     )
                     Text(
                         text = if (orderType == OrderType.DINE_IN) "DINE IN" else "PARCEL",
-                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.labelSmall.copy(color = RkGoldPrimary, fontWeight = FontWeight.Bold)
                     )
                 }
 
                 if (cartItems.isNotEmpty()) {
                     TextButton(onClick = onClearCart) {
-                        Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.DeleteOutline, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color(0xFFFF5252))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Clear", color = MaterialTheme.colorScheme.error)
+                        Text("Clear", color = Color(0xFFFF5252))
                     }
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = RkBorderGoldSubtle)
 
             // Cart Items List
             if (cartItems.isEmpty()) {
@@ -577,11 +615,11 @@ fun CartPane(
                             Icons.Default.ShoppingBag,
                             contentDescription = null,
                             modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.outlineVariant
+                            tint = RkTextMuted
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Text("Cart is empty", color = MaterialTheme.colorScheme.outline)
-                        Text("Tap menu items to add to bill", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                        Text("Cart is empty", color = RkTextSecondary)
+                        Text("Tap menu items to add to bill", style = MaterialTheme.typography.labelSmall, color = RkTextMuted)
                     }
                 }
             } else {
@@ -600,7 +638,7 @@ fun CartPane(
                 }
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = RkBorderGoldSubtle)
 
             // Bill Total Summary
             Row(
@@ -610,15 +648,15 @@ fun CartPane(
             ) {
                 Text(
                     text = "Items: $totalItems",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, color = RkTextPrimary)
                 )
                 Column(horizontalAlignment = Alignment.End) {
-                    Text("GRAND TOTAL", style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline, fontWeight = FontWeight.Bold))
+                    Text("GRAND TOTAL", style = MaterialTheme.typography.labelSmall.copy(color = RkTextSecondary, fontWeight = FontWeight.Bold))
                     Text(
                         text = "₹ %.0f".format(totalAmount),
                         style = MaterialTheme.typography.headlineMedium.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = RkYellowBright
                         )
                     )
                 }
@@ -627,7 +665,7 @@ fun CartPane(
             Spacer(modifier = Modifier.height(8.dp))
 
             // Payment Mode Selector
-            Text("Payment Mode:", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
+            Text("Payment Mode:", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = RkTextSecondary))
             Spacer(modifier = Modifier.height(4.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -658,6 +696,8 @@ fun CartPane(
 
             Spacer(modifier = Modifier.height(10.dp))
 
+            val hasItems = cartItems.isNotEmpty()
+
             // Print Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -666,33 +706,87 @@ fun CartPane(
                 // Print Bill Button
                 Button(
                     onClick = { onPrintAction(PosViewModel.PrintChoice.BILL_ONLY) },
-                    enabled = cartItems.isNotEmpty(),
+                    enabled = hasItems,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color(0xFF242220)
+                    ),
+                    contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
+                        .clip(RoundedCornerShape(8.dp))
                         .testTag("print_bill_button")
                 ) {
-                    Icon(Icons.Default.Receipt, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("PRINT BILL", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (hasItems) Modifier.background(RkGoldOrangeGradient)
+                                else Modifier.background(Color(0xFF242220))
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Receipt,
+                                contentDescription = null,
+                                tint = if (hasItems) RkTextOnGold else RkTextMuted,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "PRINT BILL",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = if (hasItems) RkTextOnGold else RkTextMuted
+                            )
+                        }
+                    }
                 }
 
                 // Print Token Button (KOT)
                 Button(
                     onClick = { onPrintAction(PosViewModel.PrintChoice.TOKEN_ONLY) },
-                    enabled = cartItems.isNotEmpty(),
+                    enabled = hasItems,
                     shape = RoundedCornerShape(8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color(0xFF242220)
+                    ),
+                    contentPadding = PaddingValues(0.dp),
                     modifier = Modifier
                         .weight(1f)
                         .height(48.dp)
+                        .clip(RoundedCornerShape(8.dp))
                         .testTag("print_token_button")
                 ) {
-                    Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("KOT TOKEN", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .then(
+                                if (hasItems) Modifier.background(RkBrandGradient)
+                                else Modifier.background(Color(0xFF242220))
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                Icons.Default.Print,
+                                contentDescription = null,
+                                tint = if (hasItems) Color.White else RkTextMuted,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(4.dp))
+                            Text(
+                                "KOT TOKEN",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = if (hasItems) Color.White else RkTextMuted
+                            )
+                        }
+                    }
                 }
             }
 
@@ -701,17 +795,44 @@ fun CartPane(
             // BILL + TOKEN Combined Action Button
             Button(
                 onClick = { onPrintAction(PosViewModel.PrintChoice.BOTH) },
-                enabled = cartItems.isNotEmpty(),
+                enabled = hasItems,
                 shape = RoundedCornerShape(8.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = LeafGreenDark),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.Transparent,
+                    disabledContainerColor = Color(0xFF242220)
+                ),
+                contentPadding = PaddingValues(0.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .testTag("bill_and_token_button")
             ) {
-                Icon(Icons.Default.Receipt, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("BILL + TOKEN (PRINT BOTH)", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(
+                            if (hasItems) Modifier.background(RkBrandGradient)
+                            else Modifier.background(Color(0xFF242220))
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Default.Receipt,
+                            contentDescription = null,
+                            tint = if (hasItems) Color.White else RkTextMuted,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            "BILL + TOKEN (PRINT BOTH)",
+                            fontWeight = FontWeight.ExtraBold,
+                            fontSize = 14.sp,
+                            color = if (hasItems) Color.White else RkTextMuted
+                        )
+                    }
+                }
             }
         }
     }
@@ -728,7 +849,8 @@ fun CartItemRow(
 ) {
     Surface(
         shape = RoundedCornerShape(8.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+        color = RkSurfaceVariantDark,
+        border = BorderStroke(1.dp, RkBorderGoldSubtle),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -741,13 +863,13 @@ fun CartItemRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.menuItem.name,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "₹ %.0f each".format(item.menuItem.price),
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
+                    style = MaterialTheme.typography.labelSmall.copy(color = RkTextSecondary)
                 )
             }
 
@@ -757,14 +879,15 @@ fun CartItemRow(
             ) {
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
+                    color = RkSurfaceDark,
+                    border = BorderStroke(1.dp, RkBorderGoldSubtle),
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape)
                         .clickable { onDecrement() }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Remove, contentDescription = "Minus", modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Remove, contentDescription = "Minus", tint = RkTextPrimary, modifier = Modifier.size(14.dp))
                     }
                 }
 
@@ -772,25 +895,26 @@ fun CartItemRow(
                     text = item.quantity.toString(),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp,
+                    color = RkTextPrimary,
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
 
                 Surface(
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface,
+                    color = RkGoldPrimary,
                     modifier = Modifier
                         .size(26.dp)
                         .clip(CircleShape)
                         .clickable { onIncrement() }
                 ) {
                     Box(contentAlignment = Alignment.Center) {
-                        Icon(Icons.Default.Add, contentDescription = "Plus", modifier = Modifier.size(14.dp))
+                        Icon(Icons.Default.Add, contentDescription = "Plus", tint = RkTextOnGold, modifier = Modifier.size(14.dp))
                     }
                 }
 
                 Text(
                     text = "₹ %.0f".format(item.total),
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold, color = RkYellowBright),
                     modifier = Modifier.width(60.dp),
                     textAlign = TextAlign.End
                 )
@@ -822,9 +946,10 @@ fun PaymentModeButton(
     Button(
         onClick = onClick,
         colors = ButtonDefaults.buttonColors(
-            containerColor = if (isSelected) selectedColor else MaterialTheme.colorScheme.surfaceVariant,
-            contentColor = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+            containerColor = if (isSelected) selectedColor else RkSurfaceVariantDark,
+            contentColor = if (isSelected) Color.White else RkTextSecondary
         ),
+        border = if (!isSelected) BorderStroke(1.dp, RkBorderGoldSubtle) else null,
         shape = RoundedCornerShape(8.dp),
         modifier = modifier
             .height(40.dp)
@@ -849,13 +974,14 @@ fun QuickBottomCartBar(
 ) {
     val totalAmount = cartItems.sumOf { it.total }
     val totalItems = cartItems.sumOf { it.quantity }
+    val hasItems = cartItems.isNotEmpty()
 
     Surface(
-        color = MaterialTheme.colorScheme.surface,
+        color = RkSurfaceDark,
         tonalElevation = 8.dp,
         modifier = Modifier
             .fillMaxWidth()
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .border(1.dp, RkBorderGoldSubtle)
     ) {
         Column(modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)) {
             Row(
@@ -868,13 +994,13 @@ fun QuickBottomCartBar(
                 ) {
                     Text(
                         text = "$totalItems Items • Tap to view bill",
-                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.labelSmall.copy(color = RkGoldPrimary, fontWeight = FontWeight.Bold)
                     )
                     Text(
                         text = "Total: ₹ %.0f".format(totalAmount),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.primary
+                            color = RkYellowBright
                         )
                     )
                 }
@@ -882,22 +1008,64 @@ fun QuickBottomCartBar(
                 Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     Button(
                         onClick = onPrintBill,
-                        enabled = cartItems.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        enabled = hasItems,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            disabledContainerColor = Color(0xFF242220)
+                        ),
+                        contentPadding = PaddingValues(0.dp),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(44.dp)
+                        modifier = Modifier
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(8.dp))
                     ) {
-                        Text("BILL", fontWeight = FontWeight.Bold)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .then(
+                                    if (hasItems) Modifier.background(RkGoldOrangeGradient)
+                                    else Modifier.background(Color(0xFF242220))
+                                )
+                                .padding(horizontal = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "BILL",
+                                fontWeight = FontWeight.Bold,
+                                color = if (hasItems) RkTextOnGold else RkTextMuted
+                            )
+                        }
                     }
 
                     Button(
                         onClick = onPrintBoth,
-                        enabled = cartItems.isNotEmpty(),
-                        colors = ButtonDefaults.buttonColors(containerColor = LeafGreenDark),
+                        enabled = hasItems,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.Transparent,
+                            disabledContainerColor = Color(0xFF242220)
+                        ),
+                        contentPadding = PaddingValues(0.dp),
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(44.dp)
+                        modifier = Modifier
+                            .height(44.dp)
+                            .clip(RoundedCornerShape(8.dp))
                     ) {
-                        Text("BILL+TOKEN", fontWeight = FontWeight.Bold)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .then(
+                                    if (hasItems) Modifier.background(RkBrandGradient)
+                                    else Modifier.background(Color(0xFF242220))
+                                )
+                                .padding(horizontal = 14.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                "BILL+TOKEN",
+                                fontWeight = FontWeight.Bold,
+                                color = if (hasItems) Color.White else RkTextMuted
+                            )
+                        }
                     }
                 }
             }

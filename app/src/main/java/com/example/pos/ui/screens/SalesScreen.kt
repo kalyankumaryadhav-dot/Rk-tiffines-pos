@@ -70,9 +70,25 @@ import com.example.pos.ui.SalesSummary
 import com.example.pos.ui.SalesTimeFilter
 import com.example.ui.theme.CardPurple
 import com.example.ui.theme.CashGreen
-import com.example.ui.theme.LeafGreenTertiary
 import com.example.ui.theme.PrinterConnectedGreen
+import com.example.ui.theme.RkBlackBackground
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceDark
+import com.example.ui.theme.RkSurfaceElevated
+import com.example.ui.theme.RkSurfaceVariantDark
+import com.example.ui.theme.RkTextMuted
+import com.example.ui.theme.RkTextOnGold
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkTextSecondary
+import com.example.ui.theme.RkYellowBright
 import com.example.ui.theme.UpiBlue
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 
 @Composable
 fun SalesScreen(
@@ -92,7 +108,8 @@ fun SalesScreen(
         orders.filter {
             it.billNumber.toString().contains(searchQuery) ||
             it.tokenNumber.toString().contains(searchQuery) ||
-            it.orderType.name.contains(searchQuery, ignoreCase = true)
+            (it.customerName?.contains(searchQuery, ignoreCase = true) == true) ||
+            (it.tableNumber?.contains(searchQuery) == true)
         }
     }
 
@@ -104,18 +121,31 @@ fun SalesScreen(
         // Filter Tabs: TODAY, WEEKLY, MONTHLY, ALL
         TabRow(
             selectedTabIndex = currentFilter.ordinal,
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            modifier = Modifier.clip(RoundedCornerShape(10.dp))
+            containerColor = RkSurfaceDark,
+            contentColor = RkGoldPrimary,
+            indicator = { tabPositions ->
+                TabRowDefaults.SecondaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[currentFilter.ordinal]),
+                    color = RkGoldPrimary
+                )
+            },
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .border(BorderStroke(1.dp, RkBorderGoldSubtle), RoundedCornerShape(10.dp))
         ) {
             SalesTimeFilter.values().forEach { filter ->
+                val isSelected = currentFilter == filter
                 Tab(
-                    selected = currentFilter == filter,
+                    selected = isSelected,
                     onClick = { viewModel.setSalesFilter(filter) },
+                    selectedContentColor = RkGoldPrimary,
+                    unselectedContentColor = RkTextSecondary,
                     text = {
                         Text(
                             text = filter.name,
-                            fontWeight = if (currentFilter == filter) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 13.sp
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 13.sp,
+                            color = if (isSelected) RkGoldPrimary else RkTextSecondary
                         )
                     }
                 )
@@ -133,7 +163,7 @@ fun SalesScreen(
                 title = "TOTAL REVENUE",
                 amount = "₹ %.0f".format(salesSummary.totalRevenue),
                 subtitle = "${salesSummary.billCount} Bills",
-                color = MaterialTheme.colorScheme.primary,
+                color = RkGoldPrimary,
                 modifier = Modifier.weight(1.3f)
             )
 
@@ -183,15 +213,24 @@ fun SalesScreen(
         ) {
             Text(
                 text = "Past Bills (${filteredOrders.size})",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
             )
 
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                placeholder = { Text("Search Bill / Token #", fontSize = 13.sp) },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, modifier = Modifier.size(18.dp)) },
+                placeholder = { Text("Search Bill / Token #", fontSize = 13.sp, color = RkTextMuted) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(18.dp)) },
                 singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = RkGoldPrimary,
+                    unfocusedBorderColor = RkBorderGoldSubtle,
+                    focusedTextColor = RkTextPrimary,
+                    unfocusedTextColor = RkTextPrimary,
+                    cursorColor = RkGoldPrimary,
+                    focusedContainerColor = RkSurfaceDark,
+                    unfocusedContainerColor = RkSurfaceDark
+                ),
                 modifier = Modifier
                     .width(220.dp)
                     .height(50.dp),
@@ -211,7 +250,7 @@ fun SalesScreen(
             ) {
                 Text(
                     text = "No bills found for selected period",
-                    color = MaterialTheme.colorScheme.outline
+                    color = RkTextSecondary
                 )
             }
         } else {
@@ -259,7 +298,8 @@ fun SummaryCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.12f)),
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, if (color == RkGoldPrimary) RkBorderGoldSubtle else color.copy(alpha = 0.35f)),
         modifier = modifier
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
@@ -284,12 +324,12 @@ fun SummaryCard(
                 text = amount,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    color = color
+                    color = if (color == RkGoldPrimary) RkYellowBright else color
                 )
             )
             Text(
                 text = subtitle,
-                style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)
+                style = MaterialTheme.typography.labelSmall.copy(color = RkTextSecondary)
             )
         }
     }
@@ -302,7 +342,8 @@ fun CloudSyncBar(
 ) {
     Surface(
         shape = RoundedCornerShape(10.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+        color = RkSurfaceDark,
+        border = BorderStroke(1.dp, RkBorderGoldSubtle),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -318,20 +359,20 @@ fun CloudSyncBar(
             ) {
                 when (syncState) {
                     is SyncState.Syncing -> {
-                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                        Text("Synchronizing sales to Firestore...", fontSize = 13.sp)
+                        CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp, color = RkGoldPrimary)
+                        Text("Synchronizing sales to Firestore...", fontSize = 13.sp, color = RkTextPrimary)
                     }
                     is SyncState.Success -> {
                         Icon(Icons.Default.CloudDone, contentDescription = null, tint = PrinterConnectedGreen, modifier = Modifier.size(20.dp))
-                        Text(syncState.message, fontSize = 13.sp, fontWeight = FontWeight.Medium)
+                        Text(syncState.message, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = RkTextPrimary)
                     }
                     is SyncState.Error -> {
                         Icon(Icons.Default.CloudOff, contentDescription = null, tint = MaterialTheme.colorScheme.error, modifier = Modifier.size(20.dp))
                         Text("Sync error: ${syncState.message}", fontSize = 13.sp, color = MaterialTheme.colorScheme.error)
                     }
                     is SyncState.Idle -> {
-                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-                        Text("Cloud Sales Synchronization: Online", fontSize = 13.sp)
+                        Icon(Icons.Default.CloudDone, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(20.dp))
+                        Text("Cloud Sales Synchronization: Online", fontSize = 13.sp, color = RkTextPrimary)
                     }
                 }
             }
@@ -339,11 +380,12 @@ fun CloudSyncBar(
             OutlinedButton(
                 onClick = onSyncClick,
                 shape = RoundedCornerShape(8.dp),
+                border = BorderStroke(1.dp, RkBorderGoldSubtle),
                 modifier = Modifier.height(36.dp)
             ) {
-                Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                Icon(Icons.Default.Refresh, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Sync Now", fontSize = 12.sp)
+                Text("Sync Now", fontSize = 12.sp, color = RkGoldPrimary)
             }
         }
     }
@@ -358,8 +400,8 @@ fun OrderHistoryItem(
 ) {
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle),
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
@@ -379,21 +421,22 @@ fun OrderHistoryItem(
                 ) {
                     Text(
                         text = "Bill #${order.billNumber}",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
                     )
                     Surface(
                         shape = RoundedCornerShape(4.dp),
-                        color = MaterialTheme.colorScheme.primaryContainer
+                        color = RkSurfaceVariantDark,
+                        border = BorderStroke(1.dp, RkBorderGoldSubtle)
                     ) {
                         Text(
                             text = "Token #${order.tokenNumber}",
-                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onPrimaryContainer),
+                            style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = RkGoldPrimary),
                             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
                         )
                     }
                     Text(
-                        text = if (order.orderType == OrderType.DINE_IN) "Dine In" else "Parcel",
-                        style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
+                        text = if (order.orderType == OrderType.DINE_IN) "Dine In (T${order.tableNumber ?: "-"})" else "Parcel",
+                        style = MaterialTheme.typography.labelSmall.copy(color = RkTextSecondary)
                     )
                 }
 
@@ -402,14 +445,14 @@ fun OrderHistoryItem(
                 val itemsText = order.items.joinToString(", ") { "${it.menuItem.name} (${it.quantity})" }
                 Text(
                     text = itemsText,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(color = RkTextSecondary),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = "${order.dateString} at ${order.timeString} • Mode: ${order.paymentMode.name}",
-                    style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
+                    style = MaterialTheme.typography.labelSmall.copy(color = RkTextMuted)
                 )
             }
 
@@ -421,7 +464,7 @@ fun OrderHistoryItem(
                     text = "₹ %.0f".format(order.grandTotal),
                     style = MaterialTheme.typography.titleLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = RkYellowBright
                     )
                 )
 
@@ -429,19 +472,21 @@ fun OrderHistoryItem(
                     OutlinedButton(
                         onClick = onReprintBill,
                         shape = RoundedCornerShape(6.dp),
+                        border = BorderStroke(1.dp, RkGoldPrimary),
                         modifier = Modifier.height(30.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
                     ) {
-                        Text("Bill", fontSize = 11.sp)
+                        Text("Bill", fontSize = 11.sp, color = RkGoldPrimary)
                     }
 
                     OutlinedButton(
                         onClick = onReprintToken,
                         shape = RoundedCornerShape(6.dp),
+                        border = BorderStroke(1.dp, RkOrangeSecondary),
                         modifier = Modifier.height(30.dp),
                         contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 8.dp)
                     ) {
-                        Text("KOT", fontSize = 11.sp)
+                        Text("KOT", fontSize = 11.sp, color = RkOrangeSecondary)
                     }
                 }
             }
@@ -458,20 +503,24 @@ fun OrderDetailDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+        containerColor = RkSurfaceElevated,
+        titleContentColor = RkTextPrimary,
+        textContentColor = RkTextPrimary,
         title = {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Bill #${order.billNumber} Details", fontWeight = FontWeight.Bold)
+                Text("Bill #${order.billNumber} Details", fontWeight = FontWeight.Bold, color = RkTextPrimary)
                 Surface(
                     shape = RoundedCornerShape(6.dp),
-                    color = MaterialTheme.colorScheme.primary
+                    color = RkSurfaceVariantDark,
+                    border = BorderStroke(1.dp, RkBorderGoldSubtle)
                 ) {
                     Text(
                         "Token #${order.tokenNumber}",
-                        color = Color.White,
+                        color = RkGoldPrimary,
                         fontWeight = FontWeight.Bold,
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         fontSize = 12.sp
@@ -481,32 +530,35 @@ fun OrderDetailDialog(
         },
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
-                Text("Date & Time: ${order.dateString} ${order.timeString}")
-                Text("Order Type: ${if (order.orderType == OrderType.DINE_IN) "DINE IN" else "PARCEL"}")
-                Text("Payment Mode: ${order.paymentMode.name}")
+                Text("Date & Time: ${order.dateString} ${order.timeString}", color = RkTextSecondary)
+                Text("Order Type: ${order.orderType.name} ${if (!order.tableNumber.isNullOrBlank()) "(Table ${order.tableNumber})" else ""}", color = RkTextSecondary)
+                if (!order.customerName.isNullOrBlank()) {
+                    Text("Customer: ${order.customerName}", color = RkTextSecondary)
+                }
+                Text("Payment Mode: ${order.paymentMode.name}", color = RkTextSecondary)
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = RkBorderGoldSubtle)
 
-                Text("Items:", fontWeight = FontWeight.Bold)
+                Text("Items:", fontWeight = FontWeight.Bold, color = RkTextPrimary)
                 Spacer(modifier = Modifier.height(4.dp))
                 for (item in order.items) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("${item.menuItem.name} x ${item.quantity}")
-                        Text("₹ %.0f".format(item.total), fontWeight = FontWeight.SemiBold)
+                        Text("${item.menuItem.name} x ${item.quantity}", color = RkTextPrimary)
+                        Text("₹ %.0f".format(item.total), fontWeight = FontWeight.SemiBold, color = RkYellowBright)
                     }
                 }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = RkBorderGoldSubtle)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text("Grand Total:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                    Text("₹ %.0f".format(order.grandTotal), fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = MaterialTheme.colorScheme.primary)
+                    Text("Grand Total:", fontWeight = FontWeight.Bold, fontSize = 16.sp, color = RkTextPrimary)
+                    Text("₹ %.0f".format(order.grandTotal), fontWeight = FontWeight.ExtraBold, fontSize = 18.sp, color = RkYellowBright)
                 }
             }
         },
@@ -514,26 +566,27 @@ fun OrderDetailDialog(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(
                     onClick = onReprintBill,
+                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(Icons.Default.Receipt, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Receipt, contentDescription = null, tint = RkTextOnGold, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Reprint Bill")
+                    Text("Reprint Bill", fontWeight = FontWeight.Bold)
                 }
                 Button(
                     onClick = onReprintToken,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                    colors = ButtonDefaults.buttonColors(containerColor = RkOrangeSecondary, contentColor = Color.White),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Print, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Reprint KOT")
+                    Text("Reprint KOT", fontWeight = FontWeight.Bold)
                 }
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Close")
+                Text("Close", color = RkTextSecondary)
             }
         }
     )

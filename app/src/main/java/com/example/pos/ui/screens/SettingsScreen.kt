@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,10 +48,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -80,6 +85,18 @@ import com.example.pos.ui.PosViewModel
 import com.example.ui.theme.PrinterConnectedGreen
 import com.example.ui.theme.PrinterConnectingYellow
 import com.example.ui.theme.PrinterErrorRed
+import com.example.ui.theme.RkBlackBackground
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceDark
+import com.example.ui.theme.RkSurfaceElevated
+import com.example.ui.theme.RkSurfaceVariantDark
+import com.example.ui.theme.RkTextMuted
+import com.example.ui.theme.RkTextOnGold
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkTextSecondary
+import com.example.ui.theme.RkYellowBright
 import java.io.InputStream
 
 enum class SettingsSection(val title: String) {
@@ -107,11 +124,11 @@ fun SettingsScreen(
     ) {
         Text(
             text = "POS Terminal Settings",
-            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
         )
         Text(
             text = "Configure business details, POS-8380 thermal printer, receipt layout, and numbering",
-            style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.outline)
+            style = MaterialTheme.typography.bodySmall.copy(color = RkTextSecondary)
         )
 
         Spacer(modifier = Modifier.height(10.dp))
@@ -119,18 +136,31 @@ fun SettingsScreen(
         // Navigation Tabs for Settings
         TabRow(
             selectedTabIndex = selectedSection.ordinal,
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            modifier = Modifier.clip(RoundedCornerShape(10.dp))
+            containerColor = RkSurfaceDark,
+            contentColor = RkGoldPrimary,
+            indicator = { tabPositions ->
+                TabRowDefaults.SecondaryIndicator(
+                    modifier = Modifier.tabIndicatorOffset(tabPositions[selectedSection.ordinal]),
+                    color = RkGoldPrimary
+                )
+            },
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+                .border(BorderStroke(1.dp, RkBorderGoldSubtle), RoundedCornerShape(10.dp))
         ) {
             SettingsSection.values().forEach { section ->
+                val isSelected = selectedSection == section
                 Tab(
-                    selected = selectedSection == section,
+                    selected = isSelected,
                     onClick = { selectedSection = section },
+                    selectedContentColor = RkGoldPrimary,
+                    unselectedContentColor = RkTextSecondary,
                     text = {
                         Text(
                             text = section.title,
-                            fontWeight = if (selectedSection == section) FontWeight.Bold else FontWeight.Normal,
-                            fontSize = 12.sp
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            fontSize = 12.sp,
+                            color = if (isSelected) RkGoldPrimary else RkTextSecondary
                         )
                     }
                 )
@@ -166,6 +196,18 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
     var phone by remember(settings.phone) { mutableStateOf(settings.phone) }
     val context = LocalContext.current
 
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = RkGoldPrimary,
+        unfocusedBorderColor = RkBorderGoldSubtle,
+        focusedTextColor = RkTextPrimary,
+        unfocusedTextColor = RkTextPrimary,
+        cursorColor = RkGoldPrimary,
+        focusedLabelColor = RkGoldPrimary,
+        unfocusedLabelColor = RkTextSecondary,
+        focusedContainerColor = RkSurfaceDark,
+        unfocusedContainerColor = RkSurfaceDark
+    )
+
     // Photo picker launcher (M3 Android zero-permission picker)
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
@@ -187,17 +229,18 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Business Profile", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text("Business Profile", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
 
                 OutlinedTextField(
                     value = shopName,
                     onValueChange = { shopName = it },
                     label = { Text("Shop Name") },
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -206,6 +249,7 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                     onValueChange = { address = it },
                     label = { Text("Shop Address") },
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -215,15 +259,17 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                     label = { Text("Phone Number") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    colors = fieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 Button(
                     onClick = { viewModel.updateBusinessDetails(shopName, address, phone) },
+                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                     shape = RoundedCornerShape(8.dp),
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Save Business Details")
+                    Text("Save Business Details", fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -231,15 +277,15 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
         // Logo Upload Section
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Thermal Receipt Logo", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text("Thermal Receipt Logo", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
                 Text(
                     text = "Upload a black & white or high-contrast logo. It will be converted into crisp monochrome raster ESC/POS format for thermal printing.",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
+                    color = RkTextSecondary
                 )
 
                 val logoBitmap = remember(settings.logoPath) { viewModel.repository.getLogoBitmap() }
@@ -256,7 +302,7 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                             modifier = Modifier
                                 .size(90.dp)
                                 .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(8.dp))
+                                .border(1.dp, RkBorderGoldSubtle, RoundedCornerShape(8.dp))
                         )
 
                         Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -268,13 +314,14 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                                         )
                                     },
+                                    border = BorderStroke(1.dp, RkBorderGoldSubtle),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
-                                    Text("Change")
+                                    Text("Change", color = RkGoldPrimary)
                                 }
                                 Button(
                                     onClick = { viewModel.removeLogo() },
-                                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                                    colors = ButtonDefaults.buttonColors(containerColor = PrinterErrorRed, contentColor = Color.White),
                                     shape = RoundedCornerShape(8.dp)
                                 ) {
                                     Text("Remove")
@@ -289,12 +336,13 @@ fun BusinessSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                                 PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
                             )
                         },
+                        border = BorderStroke(1.dp, RkBorderGoldSubtle),
                         shape = RoundedCornerShape(8.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Icon(Icons.Default.Upload, contentDescription = null)
+                        Icon(Icons.Default.Upload, contentDescription = null, tint = RkGoldPrimary)
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Upload Logo from Device Gallery")
+                        Text("Upload Logo from Device Gallery", color = RkGoldPrimary)
                     }
                 }
             }
@@ -328,11 +376,11 @@ fun PrinterSettingsSection(
         // Printer Connection Status Card
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("POS-8380 Bluetooth Classic SPP Status", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text("POS-8380 Bluetooth Classic SPP Status", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -343,21 +391,21 @@ fun PrinterSettingsSection(
                             Icon(Icons.Default.BluetoothConnected, contentDescription = null, tint = PrinterConnectedGreen, modifier = Modifier.size(24.dp))
                             Column {
                                 Text("CONNECTED to ${printerState.deviceName}", fontWeight = FontWeight.Bold, color = PrinterConnectedGreen)
-                                Text("MAC: ${printerState.address} • RFCOMM Socket Active", style = MaterialTheme.typography.bodySmall)
+                                Text("MAC: ${printerState.address} • RFCOMM Socket Active", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                             }
                         }
                         is PrinterConnectionState.Connecting -> {
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                            CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = RkGoldPrimary)
                             Text("Connecting to saved printer...", fontWeight = FontWeight.SemiBold, color = PrinterConnectingYellow)
                         }
                         is PrinterConnectionState.Disconnected -> {
-                            Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(24.dp))
+                            Icon(Icons.Default.BluetoothDisabled, contentDescription = null, tint = RkTextMuted, modifier = Modifier.size(24.dp))
                             Column {
-                                Text("Disconnected", fontWeight = FontWeight.Bold)
+                                Text("Disconnected", fontWeight = FontWeight.Bold, color = RkTextPrimary)
                                 if (settings.savedPrinterMac.isNotBlank()) {
-                                    Text("Saved Printer: ${settings.savedPrinterName} (${settings.savedPrinterMac})", style = MaterialTheme.typography.bodySmall)
+                                    Text("Saved Printer: ${settings.savedPrinterName} (${settings.savedPrinterMac})", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                                 } else {
-                                    Text("No printer saved yet. Select POS-8380 from paired devices below.", style = MaterialTheme.typography.bodySmall)
+                                    Text("No printer saved yet. Select POS-8380 from paired devices below.", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                                 }
                             }
                         }
@@ -372,35 +420,38 @@ fun PrinterSettingsSection(
                     if (printerState is PrinterConnectionState.Connected) {
                         Button(
                             onClick = { viewModel.testPrint() },
-                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                            colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(16.dp))
+                            Icon(Icons.Default.Print, contentDescription = null, tint = RkTextOnGold, modifier = Modifier.size(16.dp))
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text("Test Print")
+                            Text("Test Print", fontWeight = FontWeight.Bold)
                         }
 
                         OutlinedButton(
                             onClick = { viewModel.disconnectPrinter() },
+                            border = BorderStroke(1.dp, RkBorderGoldSubtle),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Disconnect")
+                            Text("Disconnect", color = RkTextSecondary)
                         }
                     } else if (settings.savedPrinterMac.isNotBlank()) {
                         Button(
                             onClick = {
                                 viewModel.connectPrinter(settings.savedPrinterMac, settings.savedPrinterName.ifBlank { "POS-8380" })
                             },
+                            colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Connect POS-8380")
+                            Text("Connect POS-8380", fontWeight = FontWeight.Bold)
                         }
                     }
 
                     if (settings.savedPrinterMac.isNotBlank()) {
                         OutlinedButton(
                             onClick = { viewModel.forgetPrinter() },
-                            colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = PrinterErrorRed),
+                            border = BorderStroke(1.dp, PrinterErrorRed.copy(alpha = 0.5f)),
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text("Forget Printer")
@@ -413,50 +464,73 @@ fun PrinterSettingsSection(
         // Auto-print & Reconnect Preferences
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
+            val switchColors = SwitchDefaults.colors(
+                checkedThumbColor = RkTextOnGold,
+                checkedTrackColor = RkGoldPrimary,
+                uncheckedThumbColor = RkTextSecondary,
+                uncheckedTrackColor = RkSurfaceVariantDark
+            )
+
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Printing Automation", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Text("Printing Automation", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text("Auto-Reconnect to POS-8380", fontWeight = FontWeight.SemiBold)
-                        Text("Reconnects automatically on app launch and resume", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                        Text("Auto-Reconnect to POS-8380", fontWeight = FontWeight.SemiBold, color = RkTextPrimary)
+                        Text("Reconnects automatically on app launch and resume", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                     }
-                    Switch(checked = autoReconnect, onCheckedChange = {
-                        autoReconnect = it
-                        viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
-                    })
+                    Switch(
+                        checked = autoReconnect,
+                        onCheckedChange = {
+                            autoReconnect = it
+                            viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
+                        },
+                        colors = switchColors
+                    )
                 }
 
-                HorizontalDivider()
+                HorizontalDivider(color = RkBorderGoldSubtle)
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Auto-Print Customer Bill on Save")
-                    Switch(checked = autoBill, onCheckedChange = {
-                        autoBill = it
-                        viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
-                    })
+                    Text("Auto-Print Customer Bill on Save", color = RkTextPrimary)
+                    Switch(
+                        checked = autoBill,
+                        onCheckedChange = {
+                            autoBill = it
+                            viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
+                        },
+                        colors = switchColors
+                    )
                 }
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Auto-Print Kitchen Token (KOT) on Save")
-                    Switch(checked = autoToken, onCheckedChange = {
-                        autoToken = it
-                        viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
-                    })
+                    Text("Auto-Print Kitchen Token (KOT) on Save", color = RkTextPrimary)
+                    Switch(
+                        checked = autoToken,
+                        onCheckedChange = {
+                            autoToken = it
+                            viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
+                        },
+                        colors = switchColors
+                    )
                 }
 
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                    Text("Auto-Print Both Bill + Token on Save")
-                    Switch(checked = autoBoth, onCheckedChange = {
-                        autoBoth = it
-                        viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
-                    })
+                    Text("Auto-Print Both Bill + Token on Save", color = RkTextPrimary)
+                    Switch(
+                        checked = autoBoth,
+                        onCheckedChange = {
+                            autoBoth = it
+                            viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
+                        },
+                        colors = switchColors
+                    )
                 }
 
-                HorizontalDivider()
+                HorizontalDivider(color = RkBorderGoldSubtle)
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -466,12 +540,13 @@ fun PrinterSettingsSection(
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Auto Cut: ${if (settings.autoCutPaper) "ON" else "OFF"}",
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            color = RkTextPrimary
                         )
                         Text(
                             text = "Send ESC/POS cut command to POS-8380 printer after printing",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
+                            color = RkTextSecondary
                         )
                     }
                     Switch(
@@ -479,6 +554,7 @@ fun PrinterSettingsSection(
                         onCheckedChange = { enabled ->
                             viewModel.setAutoCutPaper(enabled)
                         },
+                        colors = switchColors,
                         modifier = Modifier.testTag("switch_auto_cut")
                     )
                 }
@@ -488,8 +564,8 @@ fun PrinterSettingsSection(
         // Paired Devices List Card
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 Row(
@@ -497,9 +573,9 @@ fun PrinterSettingsSection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Paired Bluetooth Printers", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                    Text("Paired Bluetooth Printers", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
                     IconButton(onClick = { viewModel.printerManager.loadPairedDevices() }) {
-                        Icon(Icons.Default.Refresh, contentDescription = "Refresh paired list")
+                        Icon(Icons.Default.Refresh, contentDescription = "Refresh paired list", tint = RkGoldPrimary)
                     }
                 }
 
@@ -507,7 +583,7 @@ fun PrinterSettingsSection(
                     Text(
                         "No paired Bluetooth devices found. Please pair your POS-8380 thermal printer in Android Bluetooth Settings first.",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
+                        color = RkTextSecondary
                     )
                 } else {
                     pairedDevices.forEach { dev ->
@@ -516,8 +592,8 @@ fun PrinterSettingsSection(
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isConnectedHere) PrinterConnectedGreen.copy(alpha = 0.1f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                            border = if (isPos8380) androidx.compose.foundation.BorderStroke(1.5.dp, MaterialTheme.colorScheme.primary) else null,
+                            color = if (isConnectedHere) PrinterConnectedGreen.copy(alpha = 0.15f) else RkSurfaceVariantDark,
+                            border = if (isPos8380) BorderStroke(1.5.dp, RkGoldPrimary) else BorderStroke(1.dp, RkBorderGoldSubtle),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp))
@@ -531,17 +607,17 @@ fun PrinterSettingsSection(
                             ) {
                                 Column(modifier = Modifier.weight(1f)) {
                                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                        Text(dev.name, fontWeight = FontWeight.Bold)
+                                        Text(dev.name, fontWeight = FontWeight.Bold, color = RkTextPrimary)
                                         if (isPos8380) {
                                             Surface(
                                                 shape = RoundedCornerShape(4.dp),
-                                                color = MaterialTheme.colorScheme.primary
+                                                color = RkGoldPrimary
                                             ) {
-                                                Text("RECOMMENDED", color = Color.White, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
+                                                Text("RECOMMENDED", color = RkTextOnGold, fontSize = 9.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp))
                                             }
                                         }
                                     }
-                                    Text("MAC: ${dev.address}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                                    Text("MAC: ${dev.address}", style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                                 }
 
                                 if (isConnectedHere) {
@@ -549,10 +625,11 @@ fun PrinterSettingsSection(
                                 } else {
                                     Button(
                                         onClick = { viewModel.connectPrinter(dev.address, dev.name) },
+                                        colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                                         shape = RoundedCornerShape(6.dp),
                                         modifier = Modifier.height(36.dp)
                                     ) {
-                                        Text("Select & Connect")
+                                        Text("Select & Connect", fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -560,7 +637,7 @@ fun PrinterSettingsSection(
                     }
                 }
 
-                HorizontalDivider()
+                HorizontalDivider(color = RkBorderGoldSubtle)
 
                 // Scan for Nearby Devices
                 Row(
@@ -568,25 +645,27 @@ fun PrinterSettingsSection(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Scan for Nearby Printers", fontWeight = FontWeight.SemiBold)
+                    Text("Scan for Nearby Printers", fontWeight = FontWeight.SemiBold, color = RkTextPrimary)
                     if (isScanning) {
-                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp, color = RkGoldPrimary)
                     } else {
                         OutlinedButton(
                             onClick = { viewModel.printerManager.startScan() },
+                            border = BorderStroke(1.dp, RkBorderGoldSubtle),
                             shape = RoundedCornerShape(8.dp)
                         ) {
-                            Text("Scan Now")
+                            Text("Scan Now", color = RkGoldPrimary)
                         }
                     }
                 }
 
                 if (discoveredDevices.isNotEmpty()) {
-                    Text("Discovered Devices:", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold))
+                    Text("Discovered Devices:", style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold, color = RkGoldPrimary))
                     discoveredDevices.forEach { dev ->
                         Surface(
                             shape = RoundedCornerShape(6.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            color = RkSurfaceVariantDark,
+                            border = BorderStroke(1.dp, RkBorderGoldSubtle),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -597,15 +676,16 @@ fun PrinterSettingsSection(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Column {
-                                    Text(dev.name, fontWeight = FontWeight.SemiBold)
-                                    Text(dev.address, style = MaterialTheme.typography.bodySmall)
+                                    Text(dev.name, fontWeight = FontWeight.SemiBold, color = RkTextPrimary)
+                                    Text(dev.address, style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                                 }
                                 Button(
                                     onClick = { viewModel.connectPrinter(dev.address, dev.name) },
+                                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                                     shape = RoundedCornerShape(6.dp),
                                     modifier = Modifier.height(32.dp)
                                 ) {
-                                    Text("Connect", fontSize = 12.sp)
+                                    Text("Connect", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                                 }
                             }
                         }
@@ -624,17 +704,29 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
     var billNumberInput by remember(settings.nextBillNumber) { mutableStateOf(settings.nextBillNumber.toString()) }
     var tokenNumberInput by remember(settings.nextTokenNumber) { mutableStateOf(settings.nextTokenNumber.toString()) }
 
+    val fieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = RkGoldPrimary,
+        unfocusedBorderColor = RkBorderGoldSubtle,
+        focusedTextColor = RkTextPrimary,
+        unfocusedTextColor = RkTextPrimary,
+        cursorColor = RkGoldPrimary,
+        focusedLabelColor = RkGoldPrimary,
+        unfocusedLabelColor = RkTextSecondary,
+        focusedContainerColor = RkSurfaceDark,
+        unfocusedContainerColor = RkSurfaceDark
+    )
+
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Bill & Token Numbering Control", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            Text("Bill & Token Numbering Control", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
             Text(
                 "Bill numbers and token numbers increment automatically and are persisted across app/phone restarts. You can customize or reset them below.",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                color = RkTextSecondary
             )
 
             // Next Bill Number
@@ -649,6 +741,7 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                     label = { Text("Next Bill Number") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -659,9 +752,10 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                             viewModel.resetNextBillNumber(num)
                         }
                     },
+                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Update")
+                    Text("Update", fontWeight = FontWeight.Bold)
                 }
             }
 
@@ -677,6 +771,7 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                     label = { Text("Next Token Number") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    colors = fieldColors,
                     modifier = Modifier.weight(1f)
                 )
 
@@ -687,9 +782,10 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                             viewModel.resetNextTokenNumber(num)
                         }
                     },
+                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Update")
+                    Text("Update", fontWeight = FontWeight.Bold)
                 }
 
                 OutlinedButton(
@@ -697,9 +793,10 @@ fun BillingSettingsSection(viewModel: PosViewModel, settings: ShopSettings) {
                         viewModel.resetNextTokenNumber(1)
                         tokenNumberInput = "1"
                     },
+                    border = BorderStroke(1.dp, RkBorderGoldSubtle),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text("Reset to 1")
+                    Text("Reset to 1", color = RkGoldPrimary)
                 }
             }
         }
@@ -715,39 +812,40 @@ fun SalesSyncSettingsSection(viewModel: PosViewModel) {
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle)
     ) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Text("Cloud Sales Synchronization (Firestore)", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            Text("Cloud Sales Synchronization (Firestore)", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary))
             Text(
                 "Sales records are always saved in the native Room database first for instant offline billing. When network is available, sales are synchronized to Firebase Firestore so all business devices can stay in sync without requiring login.",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
+                color = RkTextSecondary
             )
 
-            HorizontalDivider()
+            HorizontalDivider(color = RkBorderGoldSubtle)
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Sync Action", fontWeight = FontWeight.SemiBold)
+                Text("Sync Action", fontWeight = FontWeight.SemiBold, color = RkTextPrimary)
                 Button(
                     onClick = { viewModel.triggerFirestoreSync() },
+                    colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Icon(Icons.Default.Cloud, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Cloud, contentDescription = null, tint = RkTextOnGold, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Synchronize Sales Now")
+                    Text("Synchronize Sales Now", fontWeight = FontWeight.Bold)
                 }
             }
 
             Text(
                 text = "Collection: sales • Prevents duplicate entries using persistent unique Bill UUIDs",
                 style = MaterialTheme.typography.labelSmall,
-                color = MaterialTheme.colorScheme.outline
+                color = RkTextMuted
             )
         }
     }

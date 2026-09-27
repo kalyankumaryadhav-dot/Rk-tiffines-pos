@@ -1,5 +1,7 @@
 package com.example.pos.ui.screens
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenuItem
@@ -36,10 +39,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -52,6 +57,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -60,6 +67,20 @@ import androidx.compose.ui.unit.sp
 import com.example.pos.model.MenuCategories
 import com.example.pos.model.MenuItem
 import com.example.pos.ui.PosViewModel
+import com.example.ui.theme.PrinterConnectedGreen
+import com.example.ui.theme.PrinterErrorRed
+import com.example.ui.theme.RkBlackBackground
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceDark
+import com.example.ui.theme.RkSurfaceElevated
+import com.example.ui.theme.RkSurfaceVariantDark
+import com.example.ui.theme.RkTextMuted
+import com.example.ui.theme.RkTextOnGold
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkTextSecondary
+import com.example.ui.theme.RkYellowBright
 
 @Composable
 fun MenuManagementScreen(
@@ -78,20 +99,21 @@ fun MenuManagementScreen(
     val filteredItems = menuItems.filter { it.category == currentCategory }
 
     Scaffold(
+        containerColor = RkBlackBackground,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showAddDialog = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+                containerColor = RkGoldPrimary,
+                contentColor = RkTextOnGold,
                 modifier = Modifier.testTag("add_menu_item_fab")
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Add, contentDescription = null)
+                    Icon(Icons.Default.Add, contentDescription = null, tint = RkTextOnGold)
                     Spacer(modifier = Modifier.width(6.dp))
-                    Text("Add Item", fontWeight = FontWeight.Bold)
+                    Text("Add Item", fontWeight = FontWeight.Bold, color = RkTextOnGold)
                 }
             }
         },
@@ -111,20 +133,21 @@ fun MenuManagementScreen(
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = "Menu & Department Management",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
                     )
                     Text(
                         text = "12 Departments • ${menuItems.size} items in RK TIFFINES menu",
-                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.outline)
+                        style = MaterialTheme.typography.bodySmall.copy(color = RkTextSecondary)
                     )
                 }
                 OutlinedButton(
                     onClick = { viewModel.resetToDefaultDepartmentsAndMenu() },
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    border = BorderStroke(1.dp, RkBorderGoldSubtle)
                 ) {
-                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Icon(Icons.Default.Refresh, contentDescription = null, tint = RkGoldPrimary, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Reload 115 Items", fontSize = 12.sp)
+                    Text("Reload 115 Items", fontSize = 12.sp, color = RkGoldPrimary)
                 }
             }
 
@@ -133,18 +156,27 @@ fun MenuManagementScreen(
             // Scrollable Category / Department Tabs
             ScrollableTabRow(
                 selectedTabIndex = selectedCategoryIndex,
-                modifier = Modifier.fillMaxWidth(),
-                edgePadding = 0.dp,
+                containerColor = RkSurfaceDark,
+                contentColor = RkGoldPrimary,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(BorderStroke(1.dp, RkBorderGoldSubtle), RoundedCornerShape(10.dp)),
+                edgePadding = 8.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
-                        Modifier.tabIndicatorOffset(tabPositions[selectedCategoryIndex])
+                        Modifier.tabIndicatorOffset(tabPositions[selectedCategoryIndex]),
+                        color = RkGoldPrimary
                     )
                 }
             ) {
                 MenuCategories.ALL_DEPARTMENTS.forEachIndexed { index, dept ->
+                    val isSelected = selectedCategoryIndex == index
                     Tab(
-                        selected = selectedCategoryIndex == index,
+                        selected = isSelected,
                         onClick = { selectedCategoryIndex = index },
+                        selectedContentColor = RkGoldPrimary,
+                        unselectedContentColor = RkTextSecondary,
                         text = {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -152,19 +184,22 @@ fun MenuManagementScreen(
                             ) {
                                 Surface(
                                     shape = RoundedCornerShape(4.dp),
-                                    color = if (selectedCategoryIndex == index) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                    color = if (isSelected) RkGoldPrimary else RkSurfaceVariantDark,
+                                    border = if (!isSelected) BorderStroke(1.dp, RkBorderGoldSubtle) else null
                                 ) {
                                     Text(
                                         text = dept.code,
                                         modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
                                         fontSize = 10.sp,
-                                        fontWeight = FontWeight.Bold
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isSelected) RkTextOnGold else RkGoldPrimary
                                     )
                                 }
                                 Text(
                                     text = dept.name,
                                     fontSize = 12.sp,
-                                    fontWeight = if (selectedCategoryIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (isSelected) RkGoldPrimary else RkTextSecondary,
                                     maxLines = 1
                                 )
                             }
@@ -185,7 +220,7 @@ fun MenuManagementScreen(
                     text = "$currentCategory (${filteredItems.size} items)",
                     style = MaterialTheme.typography.titleSmall.copy(
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = RkGoldPrimary
                     )
                 )
             }
@@ -202,7 +237,7 @@ fun MenuManagementScreen(
                 ) {
                     Text(
                         "No items yet in $currentCategory. Tap '+ Add Item' below to add.",
-                        color = MaterialTheme.colorScheme.outline
+                        color = RkTextSecondary
                     )
                 }
             } else {
@@ -255,22 +290,25 @@ fun MenuManagementScreen(
     deletingItem?.let { item ->
         AlertDialog(
             onDismissRequest = { deletingItem = null },
-            title = { Text("Delete Menu Item?") },
-            text = { Text("Are you sure you want to remove \"${item.name}\" from the menu?") },
+            containerColor = RkSurfaceElevated,
+            titleContentColor = RkTextPrimary,
+            textContentColor = RkTextPrimary,
+            title = { Text("Delete Menu Item?", fontWeight = FontWeight.Bold, color = RkTextPrimary) },
+            text = { Text("Are you sure you want to remove \"${item.name}\" from the menu?", color = RkTextSecondary) },
             confirmButton = {
                 Button(
                     onClick = {
                         viewModel.deleteMenuItem(item.id)
                         deletingItem = null
                     },
-                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                    colors = ButtonDefaults.buttonColors(containerColor = PrinterErrorRed, contentColor = Color.White)
                 ) {
                     Text("Delete")
                 }
             },
             dismissButton = {
                 TextButton(onClick = { deletingItem = null }) {
-                    Text("Cancel")
+                    Text("Cancel", color = RkTextSecondary)
                 }
             }
         )
@@ -286,8 +324,8 @@ fun MenuItemManagementRow(
 ) {
     Card(
         shape = RoundedCornerShape(10.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)),
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -300,19 +338,19 @@ fun MenuItemManagementRow(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = item.name,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
                 )
                 Text(
                     text = "Rate: ₹ %.0f".format(item.price),
                     style = MaterialTheme.typography.bodyMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.primary
+                        color = RkYellowBright
                     )
                 )
                 Text(
                     text = if (item.isAvailable) "In Stock (Available for billing)" else "Out of Stock (Hidden)",
                     style = MaterialTheme.typography.labelSmall.copy(
-                        color = if (item.isAvailable) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                        color = if (item.isAvailable) PrinterConnectedGreen else PrinterErrorRed
                     )
                 )
             }
@@ -323,15 +361,21 @@ fun MenuItemManagementRow(
             ) {
                 Switch(
                     checked = item.isAvailable,
-                    onCheckedChange = { onToggleAvailable() }
+                    onCheckedChange = { onToggleAvailable() },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = RkTextOnGold,
+                        checkedTrackColor = RkGoldPrimary,
+                        uncheckedThumbColor = RkTextSecondary,
+                        uncheckedTrackColor = RkSurfaceVariantDark
+                    )
                 )
 
                 IconButton(onClick = onEdit) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit Item", tint = MaterialTheme.colorScheme.primary)
+                    Icon(Icons.Default.Edit, contentDescription = "Edit Item", tint = RkGoldPrimary)
                 }
 
                 IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, contentDescription = "Delete Item", tint = MaterialTheme.colorScheme.error)
+                    Icon(Icons.Default.Delete, contentDescription = "Delete Item", tint = PrinterErrorRed)
                 }
             }
         }
@@ -354,9 +398,24 @@ fun MenuItemEditDialog(
     var isCategoryDropdownExpanded by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = RkGoldPrimary,
+        unfocusedBorderColor = RkBorderGoldSubtle,
+        focusedTextColor = RkTextPrimary,
+        unfocusedTextColor = RkTextPrimary,
+        cursorColor = RkGoldPrimary,
+        focusedLabelColor = RkGoldPrimary,
+        unfocusedLabelColor = RkTextSecondary,
+        focusedContainerColor = RkSurfaceDark,
+        unfocusedContainerColor = RkSurfaceDark
+    )
+
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(title, fontWeight = FontWeight.Bold) },
+        containerColor = RkSurfaceElevated,
+        titleContentColor = RkTextPrimary,
+        textContentColor = RkTextPrimary,
+        title = { Text(title, fontWeight = FontWeight.Bold, color = RkTextPrimary) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -368,6 +427,7 @@ fun MenuItemEditDialog(
                     onValueChange = { name = it },
                     label = { Text("Item Name") },
                     singleLine = true,
+                    colors = textFieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
 
@@ -382,6 +442,7 @@ fun MenuItemEditDialog(
                         readOnly = true,
                         label = { Text("Category") },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isCategoryDropdownExpanded) },
+                        colors = textFieldColors,
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(androidx.compose.material3.MenuAnchorType.PrimaryNotEditable)
@@ -392,7 +453,7 @@ fun MenuItemEditDialog(
                     ) {
                         MenuCategories.ALL_CATEGORIES.forEach { cat ->
                             DropdownMenuItem(
-                                text = { Text(cat) },
+                                text = { Text(cat, color = RkTextPrimary) },
                                 onClick = {
                                     selectedCategory = cat
                                     isCategoryDropdownExpanded = false
@@ -409,11 +470,12 @@ fun MenuItemEditDialog(
                     label = { Text("Price (₹)") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
+                    colors = textFieldColors,
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 if (errorMessage != null) {
-                    Text(errorMessage ?: "", color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall)
+                    Text(errorMessage ?: "", color = PrinterErrorRed, style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
@@ -430,14 +492,15 @@ fun MenuItemEditDialog(
                         return@Button
                     }
                     onConfirm(name.trim(), selectedCategory, price)
-                }
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold)
             ) {
-                Text("Save")
+                Text("Save", fontWeight = FontWeight.Bold)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text("Cancel", color = RkTextSecondary)
             }
         }
     )

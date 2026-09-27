@@ -61,6 +61,14 @@ import com.example.pos.ui.PosTab
 import com.example.ui.theme.PrinterConnectedGreen
 import com.example.ui.theme.PrinterConnectingYellow
 import com.example.ui.theme.PrinterErrorRed
+import com.example.ui.theme.RkBlackBackground
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceElevated
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkYellowBright
+import androidx.compose.foundation.border
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,8 +85,8 @@ fun PosTopBar(
 ) {
     TopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-            titleContentColor = MaterialTheme.colorScheme.onSurface
+            containerColor = RkBlackBackground,
+            titleContentColor = RkTextPrimary
         ),
         navigationIcon = {
             if (currentTab != PosTab.BILLING) {
@@ -89,7 +97,7 @@ fun PosTopBar(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back to Billing",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = RkTextPrimary
                     )
                 }
             }
@@ -105,13 +113,14 @@ fun PosTopBar(
                             text = shopName,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
+                                letterSpacing = 0.5.sp,
+                                color = RkTextPrimary
                             )
                         )
                         Text(
                             text = "Bill #$nextBillNumber • Token #$nextTokenNumber",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = MaterialTheme.colorScheme.primary,
+                                color = RkGoldPrimary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         )
@@ -127,7 +136,8 @@ fun PosTopBar(
                 Text(
                     text = screenTitle,
                     style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = RkTextPrimary
                     )
                 )
             }
@@ -156,7 +166,7 @@ fun PosTopBar(
                     Icon(
                         imageVector = Icons.Default.MoreVert,
                         contentDescription = "Options menu",
-                        tint = MaterialTheme.colorScheme.onSurface
+                        tint = RkTextPrimary
                     )
                 }
 
@@ -164,7 +174,8 @@ fun PosTopBar(
                     expanded = menuExpanded,
                     onDismissRequest = { menuExpanded = false },
                     modifier = Modifier
-                        .background(MaterialTheme.colorScheme.surface)
+                        .background(RkSurfaceElevated)
+                        .border(1.dp, RkBorderGoldSubtle, RoundedCornerShape(8.dp))
                         .widthIn(min = 210.dp)
                 ) {
                     DropdownMenuItem(
@@ -172,14 +183,15 @@ fun PosTopBar(
                             Text(
                                 text = "Sales & Reports",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = RkTextPrimary
                             )
                         },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.BarChart,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.primary,
+                                tint = RkGoldPrimary,
                                 modifier = Modifier.size(20.dp)
                             )
                         },
@@ -195,14 +207,15 @@ fun PosTopBar(
                             Text(
                                 text = "Menu Items",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = RkTextPrimary
                             )
                         },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.RestaurantMenu,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.secondary,
+                                tint = RkOrangeSecondary,
                                 modifier = Modifier.size(20.dp)
                             )
                         },
@@ -218,14 +231,15 @@ fun PosTopBar(
                             Text(
                                 text = "Settings",
                                 fontWeight = FontWeight.Medium,
-                                style = MaterialTheme.typography.bodyMedium
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = RkTextPrimary
                             )
                         },
                         leadingIcon = {
                             Icon(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
+                                tint = RkYellowBright,
                                 modifier = Modifier.size(20.dp)
                             )
                         },
@@ -268,8 +282,8 @@ fun PrinterStatusPill(
         }
         is PrinterConnectionState.Disconnected -> {
             Tuple4(
-                MaterialTheme.colorScheme.surfaceVariant,
-                MaterialTheme.colorScheme.onSurfaceVariant,
+                Color(0x28E64A19),
+                Color(0xFFFF7043),
                 "POS-8380 Disconnected",
                 Icons.Default.BluetoothDisabled
             )

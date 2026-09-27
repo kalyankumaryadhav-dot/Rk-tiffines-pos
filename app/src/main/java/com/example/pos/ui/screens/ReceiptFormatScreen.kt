@@ -4,6 +4,7 @@ import android.graphics.BitmapFactory
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -47,6 +48,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -56,6 +58,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -73,6 +76,17 @@ import com.example.pos.ui.PosViewModel
 import com.example.ui.theme.PrinterConnectedGreen
 import com.example.ui.theme.PrinterConnectingYellow
 import com.example.ui.theme.PrinterErrorRed
+import com.example.ui.theme.RkBlackBackground
+import com.example.ui.theme.RkBorderGoldSubtle
+import com.example.ui.theme.RkGoldPrimary
+import com.example.ui.theme.RkOrangeSecondary
+import com.example.ui.theme.RkSurfaceDark
+import com.example.ui.theme.RkSurfaceVariantDark
+import com.example.ui.theme.RkTextMuted
+import com.example.ui.theme.RkTextOnGold
+import com.example.ui.theme.RkTextPrimary
+import com.example.ui.theme.RkTextSecondary
+import com.example.ui.theme.RkYellowBright
 import java.io.InputStream
 
 @Composable
@@ -115,8 +129,8 @@ fun ReceiptFormatScreen(
         // --- Top Action & Status Card ---
         Card(
             shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
+            colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+            border = BorderStroke(1.dp, RkBorderGoldSubtle)
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -130,12 +144,12 @@ fun ReceiptFormatScreen(
                     Column {
                         Text(
                             text = "Thermal Receipt Format",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold, color = RkTextPrimary)
                         )
                         Text(
                             text = "Configure all 20 printed receipt elements directly via ESC/POS",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
+                            color = RkTextSecondary
                         )
                     }
 
@@ -191,12 +205,12 @@ fun ReceiptFormatScreen(
                         modifier = Modifier
                             .weight(1.2f)
                             .height(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                        colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Icon(Icons.Default.Print, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Print, contentDescription = null, tint = RkTextOnGold, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Test Print on POS-8380", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Test Print on POS-8380", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = RkTextOnGold)
                     }
 
                     Button(
@@ -207,12 +221,12 @@ fun ReceiptFormatScreen(
                         modifier = Modifier
                             .weight(0.8f)
                             .height(48.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary),
+                        colors = ButtonDefaults.buttonColors(containerColor = RkOrangeSecondary, contentColor = Color.White),
                         shape = RoundedCornerShape(10.dp)
                     ) {
-                        Icon(Icons.Default.Save, contentDescription = null, modifier = Modifier.size(20.dp))
+                        Icon(Icons.Default.Save, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Save Format", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                        Text("Save Format", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Color.White)
                     }
                 }
 
@@ -222,7 +236,7 @@ fun ReceiptFormatScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text("Paper Width:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold))
+                    Text("Paper Width:", style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, color = RkTextPrimary))
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         FilterChip(
                             selected = paperWidth == PrinterPaperWidth.WIDTH_80MM,
@@ -230,6 +244,12 @@ fun ReceiptFormatScreen(
                                 paperWidth = PrinterPaperWidth.WIDTH_80MM
                                 viewModel.updatePaperWidth(PrinterPaperWidth.WIDTH_80MM)
                             },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RkGoldPrimary,
+                                selectedLabelColor = RkTextOnGold,
+                                containerColor = RkSurfaceVariantDark,
+                                labelColor = RkTextSecondary
+                            ),
                             label = { Text("80mm (POS-8380)", fontWeight = FontWeight.Bold) }
                         )
                         FilterChip(
@@ -238,6 +258,12 @@ fun ReceiptFormatScreen(
                                 paperWidth = PrinterPaperWidth.WIDTH_58MM
                                 viewModel.updatePaperWidth(PrinterPaperWidth.WIDTH_58MM)
                             },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = RkGoldPrimary,
+                                selectedLabelColor = RkTextOnGold,
+                                containerColor = RkSurfaceVariantDark,
+                                labelColor = RkTextSecondary
+                            ),
                             label = { Text("58mm Standard", fontWeight = FontWeight.Bold) }
                         )
                     }
@@ -600,11 +626,12 @@ fun ReceiptFormatScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = RkGoldPrimary, contentColor = RkTextOnGold),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Icon(Icons.Default.Check, contentDescription = null)
+            Icon(Icons.Default.Check, contentDescription = null, tint = RkTextOnGold)
             Spacer(modifier = Modifier.width(8.dp))
-            Text("Save All Receipt Format Settings", fontWeight = FontWeight.Bold)
+            Text("Save All Receipt Format Settings", fontWeight = FontWeight.Bold, color = RkTextOnGold)
         }
     }
 }
@@ -613,7 +640,7 @@ fun ReceiptFormatScreen(
 private fun SectionHeader(title: String) {
     Text(
         text = title,
-        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary),
+        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, color = RkGoldPrimary),
         modifier = Modifier.padding(top = 8.dp)
     )
 }
@@ -629,10 +656,17 @@ private fun ElementConfigCard(
     showFontSize: Boolean = true,
     showBold: Boolean = true
 ) {
+    val chipColors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = RkGoldPrimary,
+        selectedLabelColor = RkTextOnGold,
+        containerColor = RkSurfaceVariantDark,
+        labelColor = RkTextSecondary
+    )
+
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle)
     ) {
         Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             // Header Row: Title + Toggle
@@ -642,17 +676,23 @@ private fun ElementConfigCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(title, fontWeight = FontWeight.Bold)
-                    Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                    Text(title, fontWeight = FontWeight.Bold, color = RkTextPrimary)
+                    Text(subtitle, style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
                 }
                 Switch(
                     checked = config.visible,
-                    onCheckedChange = { onConfigChange(config.copy(visible = it)) }
+                    onCheckedChange = { onConfigChange(config.copy(visible = it)) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = RkTextOnGold,
+                        checkedTrackColor = RkGoldPrimary,
+                        uncheckedThumbColor = RkTextSecondary,
+                        uncheckedTrackColor = RkSurfaceVariantDark
+                    )
                 )
             }
 
             if (config.visible) {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                HorizontalDivider(color = RkBorderGoldSubtle)
 
                 // Options: Alignment, Font Size, Bold
                 FlowRow(
@@ -663,24 +703,27 @@ private fun ElementConfigCard(
                     // Alignment
                     if (showAlignment) {
                         Column {
-                            Text("Alignment", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            Text("Alignment", style = MaterialTheme.typography.labelSmall, color = RkTextSecondary)
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 FilterChip(
                                     selected = config.alignment == ReceiptAlignment.LEFT,
                                     onClick = { onConfigChange(config.copy(alignment = ReceiptAlignment.LEFT)) },
                                     label = { Text("Left") },
+                                    colors = chipColors,
                                     leadingIcon = { Icon(Icons.AutoMirrored.Filled.FormatAlignLeft, contentDescription = null, modifier = Modifier.size(14.dp)) }
                                 )
                                 FilterChip(
                                     selected = config.alignment == ReceiptAlignment.CENTER,
                                     onClick = { onConfigChange(config.copy(alignment = ReceiptAlignment.CENTER)) },
                                     label = { Text("Center") },
+                                    colors = chipColors,
                                     leadingIcon = { Icon(Icons.Default.FormatAlignCenter, contentDescription = null, modifier = Modifier.size(14.dp)) }
                                 )
                                 FilterChip(
                                     selected = config.alignment == ReceiptAlignment.RIGHT,
                                     onClick = { onConfigChange(config.copy(alignment = ReceiptAlignment.RIGHT)) },
                                     label = { Text("Right") },
+                                    colors = chipColors,
                                     leadingIcon = { Icon(Icons.AutoMirrored.Filled.FormatAlignRight, contentDescription = null, modifier = Modifier.size(14.dp)) }
                                 )
                             }
@@ -690,12 +733,13 @@ private fun ElementConfigCard(
                     // Font Size
                     if (showFontSize) {
                         Column {
-                            Text("Font Size", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            Text("Font Size", style = MaterialTheme.typography.labelSmall, color = RkTextSecondary)
                             Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                                 ReceiptFontSize.values().forEach { size ->
                                     FilterChip(
                                         selected = config.fontSize == size,
                                         onClick = { onConfigChange(config.copy(fontSize = size)) },
+                                        colors = chipColors,
                                         label = { Text(size.displayName) }
                                     )
                                 }
@@ -706,10 +750,11 @@ private fun ElementConfigCard(
                     // Bold Toggle
                     if (showBold) {
                         Column {
-                            Text("Style", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.outline)
+                            Text("Style", style = MaterialTheme.typography.labelSmall, color = RkTextSecondary)
                             FilterChip(
                                 selected = config.bold,
                                 onClick = { onConfigChange(config.copy(bold = !config.bold)) },
+                                colors = chipColors,
                                 label = { Text("Bold") },
                                 leadingIcon = { Icon(Icons.Default.FormatBold, contentDescription = null, modifier = Modifier.size(14.dp)) }
                             )
@@ -730,8 +775,8 @@ private fun ItemColumnConfigCard(
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        colors = CardDefaults.cardColors(containerColor = RkSurfaceDark),
+        border = BorderStroke(1.dp, RkBorderGoldSubtle)
     ) {
         Row(
             modifier = Modifier
@@ -741,21 +786,33 @@ private fun ItemColumnConfigCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, fontWeight = FontWeight.Bold)
-                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                Text(title, fontWeight = FontWeight.Bold, color = RkTextPrimary)
+                Text(subtitle, style = MaterialTheme.typography.bodySmall, color = RkTextSecondary)
             }
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 if (config.visible) {
                     FilterChip(
                         selected = config.bold,
                         onClick = { onConfigChange(config.copy(bold = !config.bold)) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = RkGoldPrimary,
+                            selectedLabelColor = RkTextOnGold,
+                            containerColor = RkSurfaceVariantDark,
+                            labelColor = RkTextSecondary
+                        ),
                         label = { Text("Bold") },
                         leadingIcon = { Icon(Icons.Default.FormatBold, contentDescription = null, modifier = Modifier.size(14.dp)) }
                     )
                 }
                 Switch(
                     checked = config.visible,
-                    onCheckedChange = { onConfigChange(config.copy(visible = it)) }
+                    onCheckedChange = { onConfigChange(config.copy(visible = it)) },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = RkTextOnGold,
+                        checkedTrackColor = RkGoldPrimary,
+                        uncheckedThumbColor = RkTextSecondary,
+                        uncheckedTrackColor = RkSurfaceVariantDark
+                    )
                 )
             }
         }
