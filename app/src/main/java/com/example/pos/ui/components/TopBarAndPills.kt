@@ -12,28 +12,41 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Bluetooth
 import androidx.compose.material.icons.filled.BluetoothConnected
 import androidx.compose.material.icons.filled.BluetoothDisabled
 import androidx.compose.material.icons.filled.Cloud
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Print
+import androidx.compose.material.icons.filled.RestaurantMenu
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.pos.data.remote.SyncState
 import com.example.pos.model.PrinterConnectionState
+import com.example.pos.ui.PosTab
 import com.example.ui.theme.PrinterConnectedGreen
 import com.example.ui.theme.PrinterConnectingYellow
 import com.example.ui.theme.PrinterErrorRed
@@ -56,6 +70,9 @@ fun PosTopBar(
     syncState: SyncState,
     nextBillNumber: Long,
     nextTokenNumber: Int,
+    currentTab: PosTab = PosTab.BILLING,
+    onNavigateTab: (PosTab) -> Unit = {},
+    onBackToBilling: () -> Unit = {},
     onPrinterStatusClick: () -> Unit
 ) {
     TopAppBar(
@@ -63,27 +80,56 @@ fun PosTopBar(
             containerColor = MaterialTheme.colorScheme.surface,
             titleContentColor = MaterialTheme.colorScheme.onSurface
         ),
-        title = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Column {
-                    Text(
-                        text = shopName,
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 0.5.sp
-                        )
-                    )
-                    Text(
-                        text = "Bill #$nextBillNumber • Token #$nextTokenNumber",
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.SemiBold
-                        )
+        navigationIcon = {
+            if (currentTab != PosTab.BILLING) {
+                IconButton(
+                    onClick = onBackToBilling,
+                    modifier = Modifier.testTag("top_bar_back_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Back to Billing",
+                        tint = MaterialTheme.colorScheme.onSurface
                     )
                 }
+            }
+        },
+        title = {
+            if (currentTab == PosTab.BILLING) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Column {
+                        Text(
+                            text = shopName,
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 0.5.sp
+                            )
+                        )
+                        Text(
+                            text = "Bill #$nextBillNumber • Token #$nextTokenNumber",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.SemiBold
+                            )
+                        )
+                    }
+                }
+            } else {
+                val screenTitle = when (currentTab) {
+                    PosTab.SALES -> "Sales & Reports"
+                    PosTab.MENU -> "Menu Items"
+                    PosTab.SETTINGS -> "Settings"
+                    PosTab.BILLING -> shopName
+                }
+                Text(
+                    text = screenTitle,
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    )
+                )
             }
         },
         actions = {
@@ -98,7 +144,101 @@ fun PosTopBar(
                 onClick = onPrinterStatusClick
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(4.dp))
+
+            // Top-right 3-dot overflow menu (⋮)
+            var menuExpanded by remember { mutableStateOf(false) }
+            Box {
+                IconButton(
+                    onClick = { menuExpanded = true },
+                    modifier = Modifier.testTag("top_overflow_menu_button")
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "Options menu",
+                        tint = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false },
+                    modifier = Modifier
+                        .background(MaterialTheme.colorScheme.surface)
+                        .widthIn(min = 210.dp)
+                ) {
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Sales & Reports",
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.BarChart,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onNavigateTab(PosTab.SALES)
+                        },
+                        modifier = Modifier.testTag("menu_sales_reports")
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Menu Items",
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.RestaurantMenu,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onNavigateTab(PosTab.MENU)
+                        },
+                        modifier = Modifier.testTag("menu_menu_items")
+                    )
+
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = "Settings",
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        },
+                        onClick = {
+                            menuExpanded = false
+                            onNavigateTab(PosTab.SETTINGS)
+                        },
+                        modifier = Modifier.testTag("menu_settings")
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(4.dp))
         }
     )
 }

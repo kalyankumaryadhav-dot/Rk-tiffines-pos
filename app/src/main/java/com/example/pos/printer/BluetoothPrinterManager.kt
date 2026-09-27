@@ -342,7 +342,7 @@ class BluetoothPrinterManager(
         }
     }
 
-    suspend fun printTestReceipt(shopName: String): Result<Unit> {
+    suspend fun printTestReceipt(shopName: String, autoCut: Boolean = true): Result<Unit> {
         val testData = StringBuilder().apply {
             append("\n")
             append("================================\n")
@@ -352,6 +352,7 @@ class BluetoothPrinterManager(
             append("Printer: POS-8380\n")
             append("Protocol: ESC/POS Bluetooth SPP\n")
             append("Status: ONLINE & READY\n")
+            append("Auto Cut: ${if (autoCut) "ENABLED" else "DISABLED"}\n")
             append("Speed: High Speed Thermal\n")
             append("Characters: 1234567890 ABCXYZ\n")
             append("Currency Symbol: Rs.\n")
@@ -360,12 +361,20 @@ class BluetoothPrinterManager(
             append("================================\n\n\n\n")
         }.toString().toByteArray(Charset.forName("ISO-8859-1"))
 
-        val fullPayload = byteArrayOf(
-            *EscPosCommands.INIT,
-            *EscPosCommands.ALIGN_CENTER,
-            *testData,
-            *EscPosCommands.PAPER_CUT
-        )
+        val fullPayload = if (autoCut) {
+            byteArrayOf(
+                *EscPosCommands.INIT,
+                *EscPosCommands.ALIGN_CENTER,
+                *testData,
+                *EscPosCommands.PAPER_CUT
+            )
+        } else {
+            byteArrayOf(
+                *EscPosCommands.INIT,
+                *EscPosCommands.ALIGN_CENTER,
+                *testData
+            )
+        }
         return sendBytes(fullPayload)
     }
 }

@@ -92,8 +92,7 @@ fun SalesScreen(
         orders.filter {
             it.billNumber.toString().contains(searchQuery) ||
             it.tokenNumber.toString().contains(searchQuery) ||
-            (it.customerName?.contains(searchQuery, ignoreCase = true) == true) ||
-            (it.tableNumber?.contains(searchQuery) == true)
+            it.orderType.name.contains(searchQuery, ignoreCase = true)
         }
     }
 
@@ -393,7 +392,7 @@ fun OrderHistoryItem(
                         )
                     }
                     Text(
-                        text = if (order.orderType == OrderType.DINE_IN) "Dine In (T${order.tableNumber ?: "-"})" else "Parcel",
+                        text = if (order.orderType == OrderType.DINE_IN) "Dine In" else "Parcel",
                         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.outline)
                     )
                 }
@@ -483,10 +482,7 @@ fun OrderDetailDialog(
         text = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 Text("Date & Time: ${order.dateString} ${order.timeString}")
-                Text("Order Type: ${order.orderType.name} ${if (!order.tableNumber.isNullOrBlank()) "(Table ${order.tableNumber})" else ""}")
-                if (!order.customerName.isNullOrBlank()) {
-                    Text("Customer: ${order.customerName}")
-                }
+                Text("Order Type: ${if (order.orderType == OrderType.DINE_IN) "DINE IN" else "PARCEL"}")
                 Text("Payment Mode: ${order.paymentMode.name}")
 
                 HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))

@@ -556,11 +556,46 @@ fun ReceiptFormatScreen(
             }
         }
 
+        // Auto Cut Setting
+        Card(
+            shape = RoundedCornerShape(12.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+        ) {
+            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Auto Cut: ${if (formatState.autoCut) "ON" else "OFF"}",
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "Send ESC/POS cut command to thermal printer after printing customer bill",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    Switch(
+                        checked = formatState.autoCut,
+                        onCheckedChange = { enabled ->
+                            formatState = formatState.copy(autoCut = enabled)
+                            viewModel.setAutoCutPaper(enabled)
+                        }
+                    )
+                }
+            }
+        }
+
         // Bottom action save button
         Button(
             onClick = {
                 viewModel.updateReceiptFormat(formatState)
                 viewModel.updatePaperWidth(paperWidth)
+                viewModel.setAutoCutPaper(formatState.autoCut)
             },
             modifier = Modifier
                 .fillMaxWidth()

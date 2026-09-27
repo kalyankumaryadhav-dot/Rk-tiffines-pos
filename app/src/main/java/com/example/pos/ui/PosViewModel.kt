@@ -346,7 +346,8 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
     fun testPrint() {
         viewModelScope.launch {
             val shopName = settings.value.shopName
-            val result = printerManager.printTestReceipt(shopName)
+            val autoCut = settings.value.autoCutPaper
+            val result = printerManager.printTestReceipt(shopName, autoCut)
             if (result.isSuccess) {
                 _eventFlow.emit("Test receipt sent to POS-8380 printer!")
             } else {
@@ -398,17 +399,31 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
         autoBill: Boolean,
         autoToken: Boolean,
         autoBoth: Boolean,
-        autoReconnect: Boolean
+        autoReconnect: Boolean,
+        autoCut: Boolean = settings.value.autoCutPaper
     ) {
         viewModelScope.launch {
             val updated = settings.value.copy(
                 autoPrintBill = autoBill,
                 autoPrintToken = autoToken,
                 autoPrintBoth = autoBoth,
-                autoReconnectPrinter = autoReconnect
+                autoReconnectPrinter = autoReconnect,
+                autoCutPaper = autoCut,
+                receiptFormat = settings.value.receiptFormat.copy(autoCut = autoCut)
             )
             repository.updateSettings(updated)
             _eventFlow.emit("Print preferences saved")
+        }
+    }
+
+    fun setAutoCutPaper(enabled: Boolean) {
+        viewModelScope.launch {
+            val updated = settings.value.copy(
+                autoCutPaper = enabled,
+                receiptFormat = settings.value.receiptFormat.copy(autoCut = enabled)
+            )
+            repository.updateSettings(updated)
+            _eventFlow.emit(if (enabled) "Auto Cut: ON (ESC/POS)" else "Auto Cut: OFF")
         }
     }
 

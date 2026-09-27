@@ -110,9 +110,11 @@ object KotFormatter {
         stream.write("Total Items: ${bill.itemCount}\n".toByteArray(charset))
         stream.write(EscPosCommands.BOLD_OFF)
 
-        // 10. Feed & Cut
+        // 10. Feed & optional Auto Cut
         stream.write(EscPosCommands.feedLines(4))
-        stream.write(EscPosCommands.PAPER_CUT)
+        if (settings.autoCutPaper) {
+            stream.write(EscPosCommands.PAPER_CUT)
+        }
 
         return stream.toByteArray()
     }

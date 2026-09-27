@@ -455,6 +455,33 @@ fun PrinterSettingsSection(
                         viewModel.updateAutoPrintSettings(autoBill, autoToken, autoBoth, autoReconnect)
                     })
                 }
+
+                HorizontalDivider()
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Auto Cut: ${if (settings.autoCutPaper) "ON" else "OFF"}",
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = "Send ESC/POS cut command to POS-8380 printer after printing",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    Switch(
+                        checked = settings.autoCutPaper,
+                        onCheckedChange = { enabled ->
+                            viewModel.setAutoCutPaper(enabled)
+                        },
+                        modifier = Modifier.testTag("switch_auto_cut")
+                    )
+                }
             }
         }
 

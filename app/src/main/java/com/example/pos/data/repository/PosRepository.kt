@@ -123,6 +123,7 @@ class PosRepository(
             val autoPrintBill = settingDao.getSettingValue("auto_print_bill")?.toBooleanStrictOrNull() ?: true
             val autoPrintToken = settingDao.getSettingValue("auto_print_token")?.toBooleanStrictOrNull() ?: false
             val autoPrintBoth = settingDao.getSettingValue("auto_print_both")?.toBooleanStrictOrNull() ?: false
+            val autoCutPaper = settingDao.getSettingValue("auto_cut_paper")?.toBooleanStrictOrNull() ?: true
 
             val maxDbBill = orderDao.getMaxBillNumber() ?: 1000L
             val savedBillNum = settingDao.getSettingValue("next_bill_number")?.toLongOrNull() ?: 1001L
@@ -141,7 +142,12 @@ class PosRepository(
             val showTable = settingDao.getSettingValue("show_table_num")?.toBooleanStrictOrNull() ?: true
             val showLogo = settingDao.getSettingValue("show_logo")?.toBooleanStrictOrNull() ?: true
             val receiptFormatJson = settingDao.getSettingValue("receipt_format_json")
-            val receiptFormat = ReceiptFormatConfig.fromJsonString(receiptFormatJson)
+            val rawReceiptFormat = ReceiptFormatConfig.fromJsonString(receiptFormatJson)
+            val receiptFormat = if (settingDao.getSettingValue("auto_cut_paper") != null) {
+                rawReceiptFormat.copy(autoCut = autoCutPaper)
+            } else {
+                rawReceiptFormat
+            }
 
             _settingsState.value = ShopSettings(
                 shopName = shopName,
@@ -154,6 +160,7 @@ class PosRepository(
                 autoPrintBill = autoPrintBill,
                 autoPrintToken = autoPrintToken,
                 autoPrintBoth = autoPrintBoth,
+                autoCutPaper = autoCutPaper,
                 nextBillNumber = nextBillNumber,
                 nextTokenNumber = nextTokenNumber,
                 savedPrinterMac = savedPrinterMac,
@@ -183,6 +190,7 @@ class PosRepository(
             AppSettingEntity("auto_print_bill", newSettings.autoPrintBill.toString()),
             AppSettingEntity("auto_print_token", newSettings.autoPrintToken.toString()),
             AppSettingEntity("auto_print_both", newSettings.autoPrintBoth.toString()),
+            AppSettingEntity("auto_cut_paper", newSettings.autoCutPaper.toString()),
             AppSettingEntity("next_bill_number", newSettings.nextBillNumber.toString()),
             AppSettingEntity("next_token_number", newSettings.nextTokenNumber.toString()),
             AppSettingEntity("saved_printer_mac", newSettings.savedPrinterMac),
@@ -198,7 +206,10 @@ class PosRepository(
     }
 
     suspend fun updateReceiptFormat(config: ReceiptFormatConfig) {
-        val updated = _settingsState.value.copy(receiptFormat = config)
+        val updated = _settingsState.value.copy(
+            receiptFormat = config,
+            autoCutPaper = config.autoCut
+        )
         updateSettings(updated)
     }
 

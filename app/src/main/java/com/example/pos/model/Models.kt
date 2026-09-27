@@ -61,6 +61,7 @@ data class ShopSettings(
     val autoPrintBill: Boolean = true,
     val autoPrintToken: Boolean = false,
     val autoPrintBoth: Boolean = false,
+    val autoCutPaper: Boolean = true,
     val nextBillNumber: Long = 1001L,
     val nextTokenNumber: Int = 1,
     val savedPrinterMac: String = "",

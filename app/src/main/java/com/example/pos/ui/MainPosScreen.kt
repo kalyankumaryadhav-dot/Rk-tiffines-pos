@@ -2,31 +2,22 @@ package com.example.pos.ui
 
 import android.Manifest
 import android.os.Build
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
-import androidx.compose.material.icons.filled.MenuBook
 import androidx.compose.material.icons.filled.PointOfSale
-import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.RestaurantMenu
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationRail
-import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -36,10 +27,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.pos.ui.components.PosTopBar
 import com.example.pos.ui.screens.BillingScreen
 import com.example.pos.ui.screens.MenuManagementScreen
@@ -108,136 +95,62 @@ fun MainPosScreen(viewModel: PosViewModel) {
         }
     }
 
-    // Adaptive layout detection: NavigationRail for tablets / wide screens, NavigationBar for phones
-    androidx.compose.foundation.layout.BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val isWideScreen = maxWidth >= 840.dp
+    // Intercept back button when not on Billing screen to return to Billing
+    BackHandler(enabled = currentTab != PosTab.BILLING) {
+        currentTab = PosTab.BILLING
+    }
 
-        if (isWideScreen) {
-            Row(modifier = Modifier.fillMaxSize()) {
-                NavigationRail(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxHeight()
-                ) {
-                    PosTab.values().forEach { tab ->
-                        NavigationRailItem(
-                            selected = currentTab == tab,
-                            onClick = { currentTab = tab },
-                            icon = { Icon(tab.icon, contentDescription = tab.title) },
-                            label = { Text(tab.title, fontSize = 11.sp, fontWeight = if (currentTab == tab) FontWeight.Bold else FontWeight.Normal) },
-                            modifier = Modifier.testTag("nav_tab_${tab.name.lowercase()}")
-                        )
-                    }
-                }
-
-                Scaffold(
-                    topBar = {
-                        PosTopBar(
-                            shopName = settings.shopName,
-                            printerState = printerState,
-                            syncState = syncState,
-                            nextBillNumber = settings.nextBillNumber,
-                            nextTokenNumber = settings.nextTokenNumber,
-                            onPrinterStatusClick = { currentTab = PosTab.SETTINGS }
-                        )
-                    },
-                    snackbarHost = { SnackbarHost(snackbarHostState) },
-                    modifier = Modifier.weight(1f)
-                ) { innerPadding ->
-                    Box(modifier = Modifier.padding(innerPadding)) {
-                        Crossfade(targetState = currentTab, label = "tab_crossfade") { tab ->
-                            when (tab) {
-                                PosTab.BILLING -> BillingScreen(
-                                    viewModel = viewModel,
-                                    cartItems = cartItems,
-                                    menuItems = allMenuItems,
-                                    selectedCategory = selectedCategory,
-                                    orderType = orderType,
-                                    tableNumber = tableNumber,
-                                    customerName = customerName,
-                                    paymentMode = paymentMode
-                                )
-                                PosTab.SALES -> SalesScreen(
-                                    viewModel = viewModel,
-                                    salesSummary = salesSummary,
-                                    orders = filteredOrders,
-                                    currentFilter = salesFilter,
-                                    syncState = syncState
-                                )
-                                PosTab.MENU -> MenuManagementScreen(
-                                    viewModel = viewModel,
-                                    menuItems = allMenuItems
-                                )
-                                PosTab.SETTINGS -> SettingsScreen(
-                                    viewModel = viewModel,
-                                    settings = settings,
-                                    printerState = printerState
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            Scaffold(
-                topBar = {
-                    PosTopBar(
-                        shopName = settings.shopName,
-                        printerState = printerState,
-                        syncState = syncState,
-                        nextBillNumber = settings.nextBillNumber,
-                        nextTokenNumber = settings.nextTokenNumber,
-                        onPrinterStatusClick = { currentTab = PosTab.SETTINGS }
+    // Clean, full-width POS scaffold with no bottom navigation bar
+    Scaffold(
+        topBar = {
+            PosTopBar(
+                shopName = settings.shopName,
+                printerState = printerState,
+                syncState = syncState,
+                nextBillNumber = settings.nextBillNumber,
+                nextTokenNumber = settings.nextTokenNumber,
+                currentTab = currentTab,
+                onNavigateTab = { tab -> currentTab = tab },
+                onBackToBilling = { currentTab = PosTab.BILLING },
+                onPrinterStatusClick = { currentTab = PosTab.SETTINGS }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = Modifier.fillMaxSize()
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+        ) {
+            Crossfade(targetState = currentTab, label = "tab_crossfade") { tab ->
+                when (tab) {
+                    PosTab.BILLING -> BillingScreen(
+                        viewModel = viewModel,
+                        cartItems = cartItems,
+                        menuItems = allMenuItems,
+                        selectedCategory = selectedCategory,
+                        orderType = orderType,
+                        tableNumber = tableNumber,
+                        customerName = customerName,
+                        paymentMode = paymentMode
                     )
-                },
-                bottomBar = {
-                    NavigationBar(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        tonalElevation = 6.dp
-                    ) {
-                        PosTab.values().forEach { tab ->
-                            NavigationBarItem(
-                                selected = currentTab == tab,
-                                onClick = { currentTab = tab },
-                                icon = { Icon(tab.icon, contentDescription = tab.title) },
-                                label = { Text(tab.title, fontSize = 11.sp, fontWeight = if (currentTab == tab) FontWeight.Bold else FontWeight.Normal) },
-                                modifier = Modifier.testTag("nav_tab_${tab.name.lowercase()}")
-                            )
-                        }
-                    }
-                },
-                snackbarHost = { SnackbarHost(snackbarHostState) }
-            ) { innerPadding ->
-                Box(modifier = Modifier.padding(innerPadding)) {
-                    Crossfade(targetState = currentTab, label = "tab_crossfade") { tab ->
-                        when (tab) {
-                            PosTab.BILLING -> BillingScreen(
-                                viewModel = viewModel,
-                                cartItems = cartItems,
-                                menuItems = allMenuItems,
-                                selectedCategory = selectedCategory,
-                                orderType = orderType,
-                                tableNumber = tableNumber,
-                                customerName = customerName,
-                                paymentMode = paymentMode
-                            )
-                            PosTab.SALES -> SalesScreen(
-                                viewModel = viewModel,
-                                salesSummary = salesSummary,
-                                orders = filteredOrders,
-                                currentFilter = salesFilter,
-                                syncState = syncState
-                            )
-                            PosTab.MENU -> MenuManagementScreen(
-                                viewModel = viewModel,
-                                menuItems = allMenuItems
-                            )
-                            PosTab.SETTINGS -> SettingsScreen(
-                                viewModel = viewModel,
-                                settings = settings,
-                                printerState = printerState
-                            )
-                        }
-                    }
+                    PosTab.SALES -> SalesScreen(
+                        viewModel = viewModel,
+                        salesSummary = salesSummary,
+                        orders = filteredOrders,
+                        currentFilter = salesFilter,
+                        syncState = syncState
+                    )
+                    PosTab.MENU -> MenuManagementScreen(
+                        viewModel = viewModel,
+                        menuItems = allMenuItems
+                    )
+                    PosTab.SETTINGS -> SettingsScreen(
+                        viewModel = viewModel,
+                        settings = settings,
+                        printerState = printerState
+                    )
                 }
             }
         }

@@ -151,7 +151,10 @@ data class ReceiptFormatConfig(
 
     // 20. Separator Lines
     val separatorLinesVisible: Boolean = true,
-    val separatorChar: Char = '-'
+    val separatorChar: Char = '-',
+
+    // Auto Cut paper after receipt
+    val autoCut: Boolean = true
 ) {
     fun toJsonString(): String {
         val root = JSONObject()
@@ -176,6 +179,7 @@ data class ReceiptFormatConfig(
         root.put("footerMessage", footerMessage.toJson())
         root.put("separatorLinesVisible", separatorLinesVisible)
         root.put("separatorChar", separatorChar.toString())
+        root.put("autoCut", autoCut)
         return root.toString()
     }
 
@@ -206,7 +210,8 @@ data class ReceiptFormatConfig(
                     paymentMode = ElementConfig.fromJson(root.optJSONObject("paymentMode"), def.paymentMode),
                     footerMessage = ElementConfig.fromJson(root.optJSONObject("footerMessage"), def.footerMessage),
                     separatorLinesVisible = root.optBoolean("separatorLinesVisible", def.separatorLinesVisible),
-                    separatorChar = root.optString("separatorChar", "-").firstOrNull() ?: '-'
+                    separatorChar = root.optString("separatorChar", "-").firstOrNull() ?: '-',
+                    autoCut = root.optBoolean("autoCut", def.autoCut)
                 )
             } catch (e: Exception) {
                 ReceiptFormatConfig()

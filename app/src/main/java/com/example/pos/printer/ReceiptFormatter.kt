@@ -302,9 +302,11 @@ object ReceiptFormatter {
             stream.write(EscPosCommands.separatorLine(cols, format.separatorChar))
         }
 
-        // 19. Feed lines and cut paper
+        // 19. Feed lines and optional Auto Cut paper
         stream.write(EscPosCommands.feedLines(4))
-        stream.write(EscPosCommands.PAPER_CUT)
+        if (settings.autoCutPaper && settings.receiptFormat.autoCut) {
+            stream.write(EscPosCommands.PAPER_CUT)
+        }
 
         return stream.toByteArray()
     }

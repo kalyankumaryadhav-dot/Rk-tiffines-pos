@@ -83,8 +83,6 @@ fun BillingScreen(
     menuItems: List<MenuItem>,
     selectedCategory: String,
     orderType: OrderType,
-    tableNumber: String,
-    customerName: String,
     paymentMode: PaymentMode,
     modifier: Modifier = Modifier
 ) {
@@ -100,13 +98,9 @@ fun BillingScreen(
                         .fillMaxHeight()
                         .padding(12.dp)
                 ) {
-                    OrderTypeAndTableBar(
+                    OrderTypeBar(
                         orderType = orderType,
-                        tableNumber = tableNumber,
-                        customerName = customerName,
-                        onOrderTypeChange = { viewModel.setOrderType(it) },
-                        onTableChange = { viewModel.setTableNumber(it) },
-                        onCustomerNameChange = { viewModel.setCustomerName(it) }
+                        onOrderTypeChange = { viewModel.setOrderType(it) }
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -141,7 +135,6 @@ fun BillingScreen(
                     cartItems = cartItems,
                     paymentMode = paymentMode,
                     orderType = orderType,
-                    tableNumber = tableNumber,
                     onPaymentModeChange = { viewModel.setPaymentMode(it) },
                     onIncrement = { viewModel.addItemToCart(it.menuItem) },
                     onDecrement = { viewModel.decrementItemQuantity(it.menuItem) },
@@ -163,13 +156,9 @@ fun BillingScreen(
                         .weight(1f)
                         .padding(horizontal = 8.dp, vertical = 6.dp)
                 ) {
-                    OrderTypeAndTableBar(
+                    OrderTypeBar(
                         orderType = orderType,
-                        tableNumber = tableNumber,
-                        customerName = customerName,
-                        onOrderTypeChange = { viewModel.setOrderType(it) },
-                        onTableChange = { viewModel.setTableNumber(it) },
-                        onCustomerNameChange = { viewModel.setCustomerName(it) }
+                        onOrderTypeChange = { viewModel.setOrderType(it) }
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -223,7 +212,6 @@ fun BillingScreen(
                             cartItems = cartItems,
                             paymentMode = paymentMode,
                             orderType = orderType,
-                            tableNumber = tableNumber,
                             onPaymentModeChange = { viewModel.setPaymentMode(it) },
                             onIncrement = { viewModel.addItemToCart(it.menuItem) },
                             onDecrement = { viewModel.decrementItemQuantity(it.menuItem) },
@@ -245,188 +233,72 @@ fun BillingScreen(
 }
 
 @Composable
-fun OrderTypeAndTableBar(
+fun OrderTypeBar(
     orderType: OrderType,
-    tableNumber: String,
-    customerName: String,
-    onOrderTypeChange: (OrderType) -> Unit,
-    onTableChange: (String) -> Unit,
-    onCustomerNameChange: (String) -> Unit
+    onOrderTypeChange: (OrderType) -> Unit
 ) {
-    var showCustomTableDialog by remember { mutableStateOf(false) }
-
     Card(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)),
         shape = RoundedCornerShape(12.dp)
     ) {
-        Column(modifier = Modifier.padding(10.dp)) {
-            // DINE IN / PARCEL Toggle Buttons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                // Dine In Button
-                Button(
-                    onClick = { onOrderTypeChange(OrderType.DINE_IN) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (orderType == OrderType.DINE_IN) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        },
-                        contentColor = if (orderType == OrderType.DINE_IN) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp)
-                        .testTag("dine_in_button")
-                ) {
-                    Icon(Icons.Default.DinnerDining, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("DINE IN", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                }
-
-                // Parcel Button
-                Button(
-                    onClick = { onOrderTypeChange(OrderType.PARCEL) },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (orderType == OrderType.PARCEL) {
-                            MaterialTheme.colorScheme.secondary
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        },
-                        contentColor = if (orderType == OrderType.PARCEL) {
-                            MaterialTheme.colorScheme.onSecondary
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        }
-                    ),
-                    shape = RoundedCornerShape(8.dp),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(48.dp)
-                        .testTag("parcel_button")
-                ) {
-                    Icon(Icons.Default.LocalMall, contentDescription = null, modifier = Modifier.size(20.dp))
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text("PARCEL", fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                }
-            }
-
-            // Table Selection (Only for Dine In)
-            if (orderType == OrderType.DINE_IN) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState()),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Text(
-                        text = "Table:",
-                        style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
-
-                    // Quick Table Chips 1 to 10
-                    for (i in 1..10) {
-                        val tStr = i.toString()
-                        val isSelected = tableNumber == tStr
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                            border = if (isSelected) null else androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                            modifier = Modifier
-                                .testTag("table_chip_$i")
-                                .clip(RoundedCornerShape(8.dp))
-                                .clickable { onTableChange(tStr) }
-                        ) {
-                            Text(
-                                text = "T$i",
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                                )
-                            )
-                        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // Dine In Button
+            Button(
+                onClick = { onOrderTypeChange(OrderType.DINE_IN) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (orderType == OrderType.DINE_IN) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+                    contentColor = if (orderType == OrderType.DINE_IN) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
                     }
-
-                    // Custom Table button
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = if (tableNumber.toIntOrNull() == null || tableNumber.toIntOrNull() !in 1..10) {
-                            MaterialTheme.colorScheme.primaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.surface
-                        },
-                        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable { showCustomTableDialog = true }
-                    ) {
-                        Text(
-                            text = if (tableNumber.toIntOrNull() == null || tableNumber.toIntOrNull() !in 1..10) "T: $tableNumber" else "+ Custom",
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
-                        )
-                    }
-                }
-            }
-
-            // Customer Name (Optional)
-            Spacer(modifier = Modifier.height(6.dp))
-            OutlinedTextField(
-                value = customerName,
-                onValueChange = onCustomerNameChange,
-                label = { Text("Customer Name (Optional)") },
-                singleLine = true,
+                ),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("customer_name_input"),
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
-    }
-
-    if (showCustomTableDialog) {
-        var inputTable by remember { mutableStateOf(tableNumber) }
-        AlertDialog(
-            onDismissRequest = { showCustomTableDialog = false },
-            title = { Text("Enter Table Number / Name") },
-            text = {
-                OutlinedTextField(
-                    value = inputTable,
-                    onValueChange = { inputTable = it },
-                    label = { Text("Table No.") },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        if (inputTable.isNotBlank()) {
-                            onTableChange(inputTable.trim())
-                        }
-                        showCustomTableDialog = false
-                    }
-                ) {
-                    Text("OK")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCustomTableDialog = false }) {
-                    Text("Cancel")
-                }
+                    .weight(1f)
+                    .height(48.dp)
+                    .testTag("dine_in_button")
+            ) {
+                Icon(Icons.Default.DinnerDining, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("DINE IN", fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }
-        )
+
+            // Parcel Button
+            Button(
+                onClick = { onOrderTypeChange(OrderType.PARCEL) },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (orderType == OrderType.PARCEL) {
+                        MaterialTheme.colorScheme.secondary
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+                    contentColor = if (orderType == OrderType.PARCEL) {
+                        MaterialTheme.colorScheme.onSecondary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    }
+                ),
+                shape = RoundedCornerShape(8.dp),
+                modifier = Modifier
+                    .weight(1f)
+                    .height(48.dp)
+                    .testTag("parcel_button")
+            ) {
+                Icon(Icons.Default.LocalMall, contentDescription = null, modifier = Modifier.size(20.dp))
+                Spacer(modifier = Modifier.width(6.dp))
+                Text("PARCEL", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+            }
+        }
     }
 }
 
@@ -642,7 +514,6 @@ fun CartPane(
     cartItems: List<CartItem>,
     paymentMode: PaymentMode,
     orderType: OrderType,
-    tableNumber: String,
     onPaymentModeChange: (PaymentMode) -> Unit,
     onIncrement: (CartItem) -> Unit,
     onDecrement: (CartItem) -> Unit,
@@ -676,7 +547,7 @@ fun CartPane(
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                     Text(
-                        text = if (orderType == OrderType.DINE_IN) "DINE IN (Table $tableNumber)" else "PARCEL",
+                        text = if (orderType == OrderType.DINE_IN) "DINE IN" else "PARCEL",
                         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
                     )
                 }
