@@ -36,6 +36,9 @@ interface MenuItemDao {
 
     @Query("DELETE FROM menu_items WHERE id = :id")
     suspend fun deleteMenuItemById(id: Long)
+
+    @Query("DELETE FROM menu_items")
+    suspend fun deleteAllMenuItems()
 }
 
 @Dao

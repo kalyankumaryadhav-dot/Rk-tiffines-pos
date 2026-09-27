@@ -21,6 +21,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -33,12 +34,13 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScrollableTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
@@ -101,38 +103,71 @@ fun MenuManagementScreen(
                 .padding(padding)
                 .padding(12.dp)
         ) {
-            Text(
-                text = "Menu Management & Rates",
-                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-                text = "Add, edit prices, or toggle item availability across all 12 categories",
-                style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.outline)
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "Menu & Department Management",
+                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                    )
+                    Text(
+                        text = "12 Departments • ${menuItems.size} items in RK TIFFINES menu",
+                        style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.outline)
+                    )
+                }
+                OutlinedButton(
+                    onClick = { viewModel.resetToDefaultDepartmentsAndMenu() },
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Reload 115 Items", fontSize = 12.sp)
+                }
+            }
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Scrollable Category Tabs
-            TabRow(
+            // Scrollable Category / Department Tabs
+            ScrollableTabRow(
                 selectedTabIndex = selectedCategoryIndex,
                 modifier = Modifier.fillMaxWidth(),
+                edgePadding = 0.dp,
                 indicator = { tabPositions ->
                     TabRowDefaults.SecondaryIndicator(
                         Modifier.tabIndicatorOffset(tabPositions[selectedCategoryIndex])
                     )
                 }
             ) {
-                categories.forEachIndexed { index, cat ->
+                MenuCategories.ALL_DEPARTMENTS.forEachIndexed { index, dept ->
                     Tab(
                         selected = selectedCategoryIndex == index,
                         onClick = { selectedCategoryIndex = index },
                         text = {
-                            Text(
-                                text = cat,
-                                fontSize = 12.sp,
-                                fontWeight = if (selectedCategoryIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                maxLines = 1
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Surface(
+                                    shape = RoundedCornerShape(4.dp),
+                                    color = if (selectedCategoryIndex == index) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                ) {
+                                    Text(
+                                        text = dept.code,
+                                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp),
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
+                                Text(
+                                    text = dept.name,
+                                    fontSize = 12.sp,
+                                    fontWeight = if (selectedCategoryIndex == index) FontWeight.Bold else FontWeight.Normal,
+                                    maxLines = 1
+                                )
+                            }
                         }
                     )
                 }

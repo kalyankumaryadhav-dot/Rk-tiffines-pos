@@ -83,11 +83,20 @@ class PosRepository(
     }
 
     private suspend fun checkAndSeedMenu() {
+        val seededVersion = settingDao.getSettingValue("menu_departments_version")
         val count = menuItemDao.getMenuItemCount()
-        if (count == 0) {
-            Log.i(TAG, "Database menu is empty. Seeding initial categories and items...")
+        if (seededVersion != "v3_rk_tiffines_115_items" || count < 100) {
+            Log.i(TAG, "Seeding official 12 departments and 115 menu items...")
+            menuItemDao.deleteAllMenuItems()
             menuItemDao.insertMenuItems(DefaultMenuData.INITIAL_MENU_ITEMS)
+            settingDao.saveSetting(AppSettingEntity("menu_departments_version", "v3_rk_tiffines_115_items"))
         }
+    }
+
+    suspend fun resetToDefaultDepartmentsAndMenu() = withContext(Dispatchers.IO) {
+        menuItemDao.deleteAllMenuItems()
+        menuItemDao.insertMenuItems(DefaultMenuData.INITIAL_MENU_ITEMS)
+        settingDao.saveSetting(AppSettingEntity("menu_departments_version", "v3_rk_tiffines_115_items"))
     }
 
     private suspend fun initSettings() {

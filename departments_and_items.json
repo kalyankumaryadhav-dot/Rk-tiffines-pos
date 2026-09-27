@@ -1,0 +1,1116 @@
+{
+  "version": "1.0",
+  "exportedAt": "2026-09-26T19:43:37.939Z",
+  "businessName": "RK TIFFINES",
+  "departments": [
+    {
+      "id": 1,
+      "name": "SOUTH INDIAN",
+      "isActive": true,
+      "code": "SI"
+    },
+    {
+      "code": "ND",
+      "id": 2,
+      "isActive": true,
+      "name": "NORMAL DOSA"
+    },
+    {
+      "code": "PS",
+      "isActive": true,
+      "id": 3,
+      "name": "PESARATTU"
+    },
+    {
+      "code": "GI",
+      "id": 4,
+      "isActive": true,
+      "name": "GHEE IDLI"
+    },
+    {
+      "code": "GD",
+      "isActive": true,
+      "id": 5,
+      "name": "GHEE DOSA"
+    },
+    {
+      "name": "BUTTER DOSA",
+      "id": 6,
+      "code": "BD",
+      "isActive": true
+    },
+    {
+      "code": "CD",
+      "id": 7,
+      "name": "CHEESE DOSA",
+      "isActive": true
+    },
+    {
+      "code": "PD",
+      "id": 8,
+      "isActive": true,
+      "name": "PIZZA DOSA"
+    },
+    {
+      "code": "PND",
+      "id": 9,
+      "isActive": true,
+      "name": "PANNER DOSA"
+    },
+    {
+      "name": "DOSA ITEMS",
+      "id": 10,
+      "isActive": true,
+      "code": "DI"
+    },
+    {
+      "name": "MAGGI",
+      "isActive": true,
+      "code": "MG",
+      "id": 11
+    },
+    {
+      "name": "SNACKS",
+      "id": 12,
+      "isActive": true,
+      "code": "SN"
+    }
+  ],
+  "menuItems": [
+    {
+      "price": 45,
+      "id": "item-1",
+      "name": "IDLI(4)",
+      "isActive": true,
+      "plu": 1,
+      "isVegetarian": true,
+      "deptId": 1
+    },
+    {
+      "name": "PAPER DOSA",
+      "deptId": 2,
+      "isActive": true,
+      "id": "item-10",
+      "price": 60,
+      "isVegetarian": true,
+      "plu": 10
+    },
+    {
+      "price": 75,
+      "name": "GHEE EGG DOSA",
+      "deptId": 5,
+      "isVegetarian": false,
+      "id": "item-100",
+      "plu": 100,
+      "isActive": true
+    },
+    {
+      "isVegetarian": true,
+      "plu": 101,
+      "id": "item-101",
+      "isActive": true,
+      "deptId": 1,
+      "name": "BONDA2",
+      "price": 25
+    },
+    {
+      "deptId": 1,
+      "isActive": true,
+      "name": "PUNUGU2",
+      "isVegetarian": true,
+      "price": 25,
+      "id": "item-102",
+      "plu": 102
+    },
+    {
+      "isActive": true,
+      "deptId": 1,
+      "plu": 103,
+      "id": "item-103",
+      "isVegetarian": true,
+      "price": 25,
+      "name": "IDLI(2)"
+    },
+    {
+      "isVegetarian": true,
+      "price": 20,
+      "deptId": 1,
+      "isActive": true,
+      "name": "LITER WATER",
+      "id": "item-104",
+      "plu": 104
+    },
+    {
+      "isActive": true,
+      "price": 10,
+      "deptId": 1,
+      "plu": 105,
+      "name": "HALF WATER",
+      "id": "item-105",
+      "isVegetarian": true
+    },
+    {
+      "name": "IDLI(5)",
+      "plu": 106,
+      "deptId": 1,
+      "isActive": true,
+      "price": 60,
+      "isVegetarian": true,
+      "id": "item-106"
+    },
+    {
+      "plu": 107,
+      "id": "item-107",
+      "name": "PONGANALU(7)",
+      "isActive": true,
+      "deptId": 12,
+      "price": 40,
+      "isVegetarian": true
+    },
+    {
+      "isVegetarian": false,
+      "deptId": 12,
+      "name": "EGG PONGANALU(7)",
+      "price": 60,
+      "id": "item-108",
+      "isActive": true,
+      "plu": 108
+    },
+    {
+      "name": "GHEEPODI PONGANALU(7)",
+      "deptId": 12,
+      "isActive": true,
+      "id": "item-109",
+      "price": 85,
+      "plu": 109,
+      "isVegetarian": true
+    },
+    {
+      "isActive": true,
+      "price": 50,
+      "deptId": 2,
+      "name": "MASALA DOSA",
+      "plu": 11,
+      "isVegetarian": true,
+      "id": "item-11"
+    },
+    {
+      "plu": 110,
+      "id": "item-110",
+      "name": "GHEEPODI MULBHAGAL DOSA",
+      "isActive": true,
+      "deptId": 12,
+      "isVegetarian": true,
+      "price": 85
+    },
+    {
+      "deptId": 12,
+      "isActive": true,
+      "name": "OPEN BUTTER PODI MULBHAG",
+      "plu": 111,
+      "price": 85,
+      "id": "item-111",
+      "isVegetarian": true
+    },
+    {
+      "deptId": 12,
+      "plu": 112,
+      "isActive": true,
+      "isVegetarian": true,
+      "id": "item-112",
+      "name": "CHEESE MULBAGAL DOSA",
+      "price": 135
+    },
+    {
+      "price": 60,
+      "name": "EGG ONION",
+      "id": "item-113",
+      "deptId": 2,
+      "isVegetarian": false,
+      "plu": 113,
+      "isActive": true
+    },
+    {
+      "name": "CHINNA PUNUGU(18)",
+      "isActive": true,
+      "price": 40,
+      "deptId": 1,
+      "isVegetarian": true,
+      "id": "item-114",
+      "plu": 114
+    },
+    {
+      "plu": 115,
+      "id": "item-115",
+      "isActive": true,
+      "name": "CHINNA PUNUGU(23)",
+      "deptId": 1,
+      "price": 50,
+      "isVegetarian": true
+    },
+    {
+      "name": "ONION DOSA",
+      "id": "item-12",
+      "price": 55,
+      "deptId": 2,
+      "isVegetarian": true,
+      "plu": 12,
+      "isActive": true
+    },
+    {
+      "isActive": true,
+      "price": 50,
+      "name": "UPMA DOSA",
+      "id": "item-13",
+      "deptId": 2,
+      "plu": 13,
+      "isVegetarian": true
+    },
+    {
+      "price": 50,
+      "plu": 14,
+      "name": "EGG DOSA",
+      "deptId": 2,
+      "id": "item-14",
+      "isActive": true,
+      "isVegetarian": false
+    },
+    {
+      "deptId": 2,
+      "name": "TOMATO DOSA",
+      "id": "item-15",
+      "price": 60,
+      "plu": 15,
+      "isVegetarian": true,
+      "isActive": true
+    },
+    {
+      "price": 65,
+      "deptId": 2,
+      "name": "SET DOSA",
+      "plu": 16,
+      "isActive": true,
+      "isVegetarian": true,
+      "id": "item-16"
+    },
+    {
+      "price": 75,
+      "id": "item-17",
+      "name": "VEGETABLE DOSA",
+      "isVegetarian": true,
+      "plu": 17,
+      "deptId": 2,
+      "isActive": true
+    },
+    {
+      "isActive": true,
+      "id": "item-18",
+      "price": 65,
+      "name": "UTTAPPAM",
+      "plu": 18,
+      "isVegetarian": true,
+      "deptId": 2
+    },
+    {
+      "isVegetarian": true,
+      "name": "MASALA ONION",
+      "id": "item-19",
+      "price": 60,
+      "deptId": 2,
+      "isActive": true,
+      "plu": 19
+    },
+    {
+      "price": 20,
+      "isVegetarian": true,
+      "name": "VADA(1)",
+      "isActive": true,
+      "deptId": 1,
+      "id": "item-2",
+      "plu": 2
+    },
+    {
+      "price": 60,
+      "name": "EGG MASALA",
+      "isVegetarian": false,
+      "id": "item-20",
+      "deptId": 2,
+      "plu": 20,
+      "isActive": true
+    },
+    {
+      "id": "item-21",
+      "plu": 21,
+      "deptId": 2,
+      "isActive": true,
+      "name": "DOUBLE EGG DOSA",
+      "isVegetarian": false,
+      "price": 60
+    },
+    {
+      "id": "item-22",
+      "plu": 22,
+      "isActive": true,
+      "price": 65,
+      "isVegetarian": true,
+      "name": "CARROT ONION DOSA",
+      "deptId": 2
+    },
+    {
+      "isActive": true,
+      "price": 65,
+      "plu": 23,
+      "name": "BEETROOT ONION DOSA",
+      "isVegetarian": true,
+      "id": "item-23",
+      "deptId": 2
+    },
+    {
+      "price": 45,
+      "deptId": 3,
+      "isVegetarian": true,
+      "name": "PLAIN PESARA DOSA",
+      "id": "item-24",
+      "plu": 24,
+      "isActive": true
+    },
+    {
+      "deptId": 3,
+      "isVegetarian": true,
+      "name": "KARAM PESARA DOSA",
+      "isActive": true,
+      "id": "item-25",
+      "price": 50,
+      "plu": 25
+    },
+    {
+      "id": "item-26",
+      "price": 65,
+      "isVegetarian": true,
+      "name": "MASALA PESARA DOSA",
+      "plu": 26,
+      "isActive": true,
+      "deptId": 3
+    },
+    {
+      "deptId": 3,
+      "isActive": true,
+      "name": "ONION PESARA DOSA",
+      "plu": 27,
+      "price": 65,
+      "isVegetarian": true,
+      "id": "item-27"
+    },
+    {
+      "isActive": true,
+      "price": 65,
+      "deptId": 3,
+      "plu": 28,
+      "name": "UPMA PESARA DOSA",
+      "isVegetarian": true,
+      "id": "item-28"
+    },
+    {
+      "deptId": 4,
+      "plu": 29,
+      "id": "item-29",
+      "isActive": true,
+      "isVegetarian": true,
+      "name": "GHEE PODI IDLI(3)",
+      "price": 65
+    },
+    {
+      "price": 45,
+      "deptId": 1,
+      "id": "item-3",
+      "name": "POORI(2)",
+      "isActive": true,
+      "plu": 3,
+      "isVegetarian": true
+    },
+    {
+      "plu": 30,
+      "id": "item-30",
+      "name": "GHEE PODI MASALA",
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 4,
+      "price": 80
+    },
+    {
+      "isVegetarian": true,
+      "plu": 31,
+      "deptId": 4,
+      "id": "item-31",
+      "name": "GHEE PODI PUNUGULU",
+      "price": 65,
+      "isActive": true
+    },
+    {
+      "deptId": 5,
+      "name": "GHEE PLAIN",
+      "id": "item-32",
+      "isVegetarian": true,
+      "price": 55,
+      "plu": 32,
+      "isActive": true
+    },
+    {
+      "price": 65,
+      "plu": 33,
+      "isVegetarian": true,
+      "deptId": 5,
+      "name": "GHEE KARAM DOSA",
+      "id": "item-33",
+      "isActive": true
+    },
+    {
+      "isActive": true,
+      "price": 75,
+      "isVegetarian": true,
+      "name": "GHEE MASALA DOSA",
+      "deptId": 5,
+      "id": "item-34",
+      "plu": 34
+    },
+    {
+      "price": 75,
+      "plu": 35,
+      "name": "GHEE ONION DOSA",
+      "id": "item-35",
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 5
+    },
+    {
+      "isActive": true,
+      "plu": 36,
+      "id": "item-36",
+      "deptId": 5,
+      "isVegetarian": true,
+      "name": "GHEE UPMA DOSA",
+      "price": 75
+    },
+    {
+      "price": 85,
+      "name": "GHEE UTTAPAM",
+      "isVegetarian": true,
+      "id": "item-37",
+      "isActive": true,
+      "deptId": 5,
+      "plu": 37
+    },
+    {
+      "isActive": true,
+      "deptId": 5,
+      "plu": 38,
+      "name": "GHEE SET DOSA",
+      "isVegetarian": true,
+      "id": "item-38",
+      "price": 85
+    },
+    {
+      "plu": 39,
+      "isVegetarian": true,
+      "deptId": 5,
+      "id": "item-39",
+      "price": 95,
+      "isActive": true,
+      "name": "GHEE VEGETABLE DOSA"
+    },
+    {
+      "isVegetarian": true,
+      "id": "item-4",
+      "price": 45,
+      "deptId": 1,
+      "name": "PUNUGU(4)",
+      "isActive": true,
+      "plu": 4
+    },
+    {
+      "plu": 40,
+      "id": "item-40",
+      "price": 55,
+      "name": "PLAIN BUTTER DOSA",
+      "deptId": 6,
+      "isActive": true,
+      "isVegetarian": true
+    },
+    {
+      "price": 65,
+      "isActive": true,
+      "name": "KARAM BUTTER DOSA",
+      "plu": 41,
+      "isVegetarian": true,
+      "deptId": 6,
+      "id": "item-41"
+    },
+    {
+      "price": 75,
+      "name": "BUTTER MASALA DOSA",
+      "isVegetarian": true,
+      "id": "item-42",
+      "plu": 42,
+      "deptId": 6,
+      "isActive": true
+    },
+    {
+      "isActive": true,
+      "plu": 43,
+      "id": "item-43",
+      "price": 75,
+      "isVegetarian": true,
+      "name": "BUTTER ONION DOSA",
+      "deptId": 6
+    },
+    {
+      "deptId": 6,
+      "name": "BUTTER EGG DOSA",
+      "price": 75,
+      "id": "item-44",
+      "isActive": true,
+      "plu": 44,
+      "isVegetarian": false
+    },
+    {
+      "price": 75,
+      "isVegetarian": true,
+      "deptId": 6,
+      "plu": 45,
+      "name": "BUTTER UPMA DOSA",
+      "isActive": true,
+      "id": "item-45"
+    },
+    {
+      "isActive": true,
+      "deptId": 6,
+      "name": "BUTTER UTTAPAM",
+      "isVegetarian": true,
+      "price": 85,
+      "id": "item-46",
+      "plu": 46
+    },
+    {
+      "name": "BUTTER SET DOSA",
+      "price": 85,
+      "id": "item-47",
+      "isVegetarian": true,
+      "plu": 47,
+      "deptId": 6,
+      "isActive": true
+    },
+    {
+      "price": 95,
+      "name": "BUTTER VEGETABLE DOSA",
+      "id": "item-48",
+      "isActive": true,
+      "deptId": 6,
+      "plu": 48,
+      "isVegetarian": true
+    },
+    {
+      "price": 95,
+      "name": "CHEESE KARAM DOSA",
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 7,
+      "id": "item-49",
+      "plu": 49
+    },
+    {
+      "plu": 5,
+      "isVegetarian": true,
+      "isActive": true,
+      "id": "item-5",
+      "deptId": 1,
+      "name": "CHINNA PUNUGU(15)",
+      "price": 35
+    },
+    {
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 7,
+      "plu": 50,
+      "id": "item-50",
+      "name": "CHEESE MASALA DOSA",
+      "price": 125
+    },
+    {
+      "price": 125,
+      "deptId": 7,
+      "name": "CHEESE ONION DOSA",
+      "isVegetarian": true,
+      "id": "item-51",
+      "isActive": true,
+      "plu": 51
+    },
+    {
+      "deptId": 7,
+      "name": "CHEESE EGG DOSA",
+      "isActive": true,
+      "id": "item-52",
+      "isVegetarian": false,
+      "price": 125,
+      "plu": 52
+    },
+    {
+      "plu": 53,
+      "name": "CORN CHEESE DOSA",
+      "deptId": 7,
+      "id": "item-53",
+      "isVegetarian": true,
+      "price": 165,
+      "isActive": true
+    },
+    {
+      "plu": 54,
+      "id": "item-54",
+      "price": 135,
+      "name": "PIZZA",
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 8
+    },
+    {
+      "isActive": true,
+      "deptId": 8,
+      "plu": 55,
+      "name": "CORN PIZZA",
+      "id": "item-55",
+      "price": 165,
+      "isVegetarian": true
+    },
+    {
+      "isVegetarian": true,
+      "price": 165,
+      "deptId": 8,
+      "plu": 56,
+      "isActive": true,
+      "name": "PANNER PIZZA",
+      "id": "item-56"
+    },
+    {
+      "isVegetarian": false,
+      "plu": 57,
+      "price": 165,
+      "deptId": 8,
+      "id": "item-57",
+      "isActive": true,
+      "name": "EGG PIZZA"
+    },
+    {
+      "deptId": 8,
+      "isVegetarian": true,
+      "plu": 58,
+      "id": "item-58",
+      "isActive": true,
+      "name": "KAJU PIZZA",
+      "price": 165
+    },
+    {
+      "deptId": 8,
+      "id": "item-59",
+      "name": "ALL IN ONE PIZZA",
+      "isVegetarian": true,
+      "plu": 59,
+      "price": 225,
+      "isActive": true
+    },
+    {
+      "plu": 6,
+      "isActive": true,
+      "price": 45,
+      "deptId": 1,
+      "id": "item-6",
+      "isVegetarian": true,
+      "name": "MYSORE BONDA(4)"
+    },
+    {
+      "deptId": 9,
+      "plu": 60,
+      "name": "PANNER PLAIN DOSA",
+      "id": "item-60",
+      "isActive": true,
+      "isVegetarian": true,
+      "price": 85
+    },
+    {
+      "deptId": 9,
+      "plu": 61,
+      "isVegetarian": true,
+      "isActive": true,
+      "id": "item-61",
+      "name": "PANNER MASALA DOSA",
+      "price": 135
+    },
+    {
+      "price": 165,
+      "plu": 62,
+      "name": "PANNER CHEESE MASALA",
+      "isActive": true,
+      "id": "item-62",
+      "isVegetarian": true,
+      "deptId": 9
+    },
+    {
+      "isVegetarian": true,
+      "price": 165,
+      "name": "PANNER KAJU DOSA",
+      "isActive": true,
+      "id": "item-63",
+      "deptId": 9,
+      "plu": 63
+    },
+    {
+      "name": "PANNER BUTTER MASALA",
+      "deptId": 9,
+      "id": "item-64",
+      "price": 165,
+      "isVegetarian": true,
+      "plu": 64,
+      "isActive": true
+    },
+    {
+      "price": 165,
+      "name": "PANNER CORN DOSA",
+      "isActive": true,
+      "id": "item-65",
+      "deptId": 9,
+      "plu": 65,
+      "isVegetarian": true
+    },
+    {
+      "isActive": true,
+      "id": "item-66",
+      "name": "PANNER KAJU CHEESE MASAL",
+      "plu": 66,
+      "deptId": 9,
+      "isVegetarian": true,
+      "price": 205
+    },
+    {
+      "id": "item-67",
+      "plu": 67,
+      "price": 135,
+      "name": "KAJU MASALA",
+      "isVegetarian": true,
+      "deptId": 10,
+      "isActive": true
+    },
+    {
+      "plu": 68,
+      "isVegetarian": true,
+      "price": 165,
+      "id": "item-68",
+      "name": "KAJU CORN MASALA",
+      "isActive": true,
+      "deptId": 10
+    },
+    {
+      "plu": 69,
+      "isVegetarian": true,
+      "id": "item-69",
+      "price": 135,
+      "isActive": true,
+      "name": "CORN MASALA DOSA",
+      "deptId": 10
+    },
+    {
+      "name": "PLAIN DOSA",
+      "id": "item-7",
+      "isVegetarian": true,
+      "deptId": 2,
+      "price": 35,
+      "plu": 7,
+      "isActive": true
+    },
+    {
+      "id": "item-70",
+      "isActive": true,
+      "plu": 70,
+      "name": "MUMBAI MASALA DOSA",
+      "deptId": 10,
+      "isVegetarian": true,
+      "price": 95
+    },
+    {
+      "price": 65,
+      "name": "SCHEZWAN DOSA",
+      "isVegetarian": true,
+      "deptId": 10,
+      "id": "item-71",
+      "plu": 71,
+      "isActive": true
+    },
+    {
+      "name": "SCHEZWAN MAYONESE DOSA",
+      "price": 95,
+      "id": "item-72",
+      "plu": 72,
+      "deptId": 10,
+      "isVegetarian": true,
+      "isActive": true
+    },
+    {
+      "isVegetarian": true,
+      "isActive": true,
+      "plu": 73,
+      "price": 135,
+      "deptId": 10,
+      "id": "item-73",
+      "name": "SCHEZWZN PANEER DOSA"
+    },
+    {
+      "price": 105,
+      "id": "item-74",
+      "deptId": 10,
+      "isVegetarian": true,
+      "isActive": true,
+      "name": "SCEZWAN CHEESEDOSA",
+      "plu": 74
+    },
+    {
+      "isActive": true,
+      "plu": 75,
+      "name": "KARAM CORN DOSA",
+      "deptId": 10,
+      "id": "item-75",
+      "price": 65,
+      "isVegetarian": true
+    },
+    {
+      "isActive": true,
+      "deptId": 10,
+      "id": "item-76",
+      "name": "CORN ONION DOSA",
+      "plu": 76,
+      "price": 75,
+      "isVegetarian": true
+    },
+    {
+      "isActive": true,
+      "plu": 77,
+      "isVegetarian": true,
+      "name": "GHEE KAJU ONION DOSA",
+      "deptId": 10,
+      "price": 135,
+      "id": "item-77"
+    },
+    {
+      "isVegetarian": true,
+      "plu": 78,
+      "deptId": 1,
+      "price": 40,
+      "isActive": true,
+      "id": "item-78",
+      "name": "IDLI(2)VADA1"
+    },
+    {
+      "deptId": 1,
+      "id": "item-79",
+      "isVegetarian": true,
+      "name": "IDLI(3)VADA1",
+      "plu": 79,
+      "price": 50,
+      "isActive": true
+    },
+    {
+      "isVegetarian": true,
+      "isActive": true,
+      "name": "KARAM DOSA",
+      "id": "item-8",
+      "price": 40,
+      "plu": 8,
+      "deptId": 2
+    },
+    {
+      "isActive": true,
+      "deptId": 1,
+      "name": "IDLI(3)",
+      "plu": 80,
+      "price": 35,
+      "id": "item-80",
+      "isVegetarian": true
+    },
+    {
+      "name": "BONDA(3)",
+      "id": "item-81",
+      "price": 35,
+      "plu": 81,
+      "deptId": 1,
+      "isVegetarian": true,
+      "isActive": true
+    },
+    {
+      "price": 35,
+      "isActive": true,
+      "name": "PUNUGU(3)",
+      "isVegetarian": true,
+      "plu": 82,
+      "deptId": 1,
+      "id": "item-82"
+    },
+    {
+      "id": "item-83",
+      "name": "CHOLE BATHURE",
+      "deptId": 1,
+      "isVegetarian": true,
+      "price": 55,
+      "plu": 83,
+      "isActive": true
+    },
+    {
+      "id": "item-84",
+      "plu": 84,
+      "price": 40,
+      "isActive": true,
+      "isVegetarian": true,
+      "name": "CLASSIC MAGGI",
+      "deptId": 11
+    },
+    {
+      "isActive": true,
+      "plu": 85,
+      "isVegetarian": true,
+      "price": 50,
+      "id": "item-85",
+      "name": "VEG MAGGI",
+      "deptId": 11
+    },
+    {
+      "name": "BUTTER MAGGI",
+      "isActive": true,
+      "isVegetarian": true,
+      "price": 60,
+      "deptId": 11,
+      "id": "item-86",
+      "plu": 86
+    },
+    {
+      "id": "item-87",
+      "isActive": true,
+      "plu": 87,
+      "isVegetarian": true,
+      "name": "CHEESE MAGI",
+      "deptId": 11,
+      "price": 100
+    },
+    {
+      "plu": 88,
+      "deptId": 11,
+      "price": 100,
+      "id": "item-88",
+      "isActive": true,
+      "isVegetarian": true,
+      "name": "PANEER MAGGI"
+    },
+    {
+      "isVegetarian": true,
+      "name": "SCHEZWAN MAGGI",
+      "id": "item-89",
+      "price": 60,
+      "deptId": 11,
+      "plu": 89,
+      "isActive": true
+    },
+    {
+      "id": "item-9",
+      "price": 45,
+      "deptId": 2,
+      "name": "KARAM TOPI DOSA",
+      "isActive": true,
+      "plu": 9,
+      "isVegetarian": true
+    },
+    {
+      "id": "item-90",
+      "deptId": 11,
+      "plu": 90,
+      "name": "EGG MAGGI",
+      "isVegetarian": false,
+      "price": 60,
+      "isActive": true
+    },
+    {
+      "isActive": true,
+      "isVegetarian": true,
+      "plu": 91,
+      "name": "IDLI KARAM PODI",
+      "deptId": 1,
+      "id": "item-91",
+      "price": 50
+    },
+    {
+      "isActive": true,
+      "price": 60,
+      "plu": 92,
+      "deptId": 11,
+      "isVegetarian": true,
+      "id": "item-92",
+      "name": "SECHZWAN MAGGI"
+    },
+    {
+      "deptId": 1,
+      "isVegetarian": true,
+      "isActive": true,
+      "name": "POORI(1)",
+      "id": "item-93",
+      "price": 25,
+      "plu": 93
+    },
+    {
+      "price": 12,
+      "name": "IDLI(1)",
+      "deptId": 1,
+      "id": "item-94",
+      "isActive": true,
+      "plu": 94,
+      "isVegetarian": true
+    },
+    {
+      "isActive": true,
+      "isVegetarian": true,
+      "deptId": 1,
+      "name": "PUNUGU(1)",
+      "price": 12,
+      "id": "item-95",
+      "plu": 95
+    },
+    {
+      "isActive": true,
+      "deptId": 1,
+      "name": "MYSORE BONDA(1)",
+      "id": "item-96",
+      "price": 12,
+      "plu": 96,
+      "isVegetarian": true
+    },
+    {
+      "plu": 97,
+      "id": "item-97",
+      "isActive": true,
+      "deptId": 4,
+      "name": "GHEE PODI IDLI(2)",
+      "isVegetarian": true,
+      "price": 45
+    },
+    {
+      "isActive": true,
+      "plu": 98,
+      "deptId": 4,
+      "id": "item-98",
+      "name": "GHEE PODI IDLI(4)",
+      "isVegetarian": true,
+      "price": 85
+    },
+    {
+      "isVegetarian": false,
+      "price": 40,
+      "isActive": true,
+      "deptId": 11,
+      "id": "item-99",
+      "name": "OMLET",
+      "plu": 99
+    }
+  ]
+}

@@ -530,6 +530,13 @@ class PosViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun resetToDefaultDepartmentsAndMenu() {
+        viewModelScope.launch {
+            repository.resetToDefaultDepartmentsAndMenu()
+            _eventFlow.emit("Menu reset to official 12 departments and 115 items")
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Cloud Sync
     // -------------------------------------------------------------------------

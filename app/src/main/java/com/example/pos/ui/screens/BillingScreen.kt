@@ -441,25 +441,43 @@ fun CategoryChipsBar(
             .horizontalScroll(rememberScrollState()),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        MenuCategories.ALL_CATEGORIES.forEach { category ->
-            val isSelected = category == selectedCategory
+        MenuCategories.ALL_DEPARTMENTS.forEach { dept ->
+            val isSelected = dept.name == selectedCategory
             Surface(
                 shape = RoundedCornerShape(10.dp),
                 color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
                 modifier = Modifier
-                    .testTag("category_chip_$category")
+                    .testTag("category_chip_${dept.name}")
                     .clip(RoundedCornerShape(10.dp))
-                    .clickable { onCategorySelect(category) }
+                    .clickable { onCategorySelect(dept.name) }
             ) {
-                Text(
-                    text = category,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                        letterSpacing = 0.3.sp
+                Row(
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(4.dp),
+                        color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f)
+                    ) {
+                        Text(
+                            text = dept.code,
+                            modifier = Modifier.padding(horizontal = 5.dp, vertical = 2.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        )
+                    }
+                    Text(
+                        text = dept.name,
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                            color = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            letterSpacing = 0.3.sp
+                        )
                     )
-                )
+                }
             }
         }
     }
