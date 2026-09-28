@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --rk-black: #0C0B0A;
+    --rk-surface-dark: #161514;
+    --rk-surface-variant: #22201D;
+    --rk-surface-elevated: #2B2824;
+    --rk-border-gold: rgba(255, 179, 0, 0.22);
+    --rk-gold-primary: #FFB300;
+    --rk-yellow-bright: #FFC107;
+    --rk-orange-secondary: #FF6D00;
+    --rk-warm-red: #E64A19;
+    --rk-text-primary: #F9F6F0;
+    --rk-text-secondary: #B8B0A6;
+    --rk-text-muted: #6E6760;
+  }
+}
+
+/* Custom scrollbar for POS view */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #161514;
+}
+::-webkit-scrollbar-thumb {
+  background: #332E27;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FFB300;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-receipt, #printable-receipt * {
+    visibility: visible;
+  }
+  #printable-receipt {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: white !important;
+    color: black !important;
+  }
+}
